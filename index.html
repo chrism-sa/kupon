@@ -39,7 +39,7 @@
     }
   </script>
 
-  <!-- Google Fonts Khusus Konsep Desain -->
+  <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Great+Vibes&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -132,12 +132,15 @@
         page-break-inside: avoid;
         break-inside: avoid;
         background: #ffffff !important;
-        border: 1.5px solid #d4af37 !important;
+        /* Bingkai Garis Ganda Klasik Elegan */
+        border: 2px solid #0b1329 !important;
+        outline: 1px solid #d4af37 !important;
+        outline-offset: -4px !important;
         border-radius: 8px !important;
         box-shadow: none !important;
         color: #0f172a !important;
         height: 66mm !important;
-        padding: 6px 8px !important;
+        padding: 7px 9px !important;
         box-sizing: border-box !important;
         display: flex !important;
         flex-direction: column !important;
@@ -1125,7 +1128,7 @@
         const qrPayload = `?code=${encodeURIComponent(c.code)}`;
 
         card.innerHTML = `
-          <!-- Ornamen Bunga Cat Air & Botani Sudut Kiri Bawah -->
+          <!-- Ornamen Bunga Cat Air & Botani Sudut Kiri Bawah (SVG) -->
           <svg class="absolute -bottom-2 -left-2 w-14 h-14 pointer-events-none opacity-40 text-navy-800 print:opacity-35 rotate-180" viewBox="0 0 100 100" fill="currentColor">
             <path d="M10,90 Q30,70 50,50 Q70,70 90,90 Q50,75 10,90 Z" />
             <circle cx="35" cy="65" r="6" fill="#d4af37" />
@@ -1133,7 +1136,7 @@
             <path d="M10,90 Q20,60 40,40" stroke="#d4af37" stroke-width="2" fill="none" />
           </svg>
 
-          <!-- Ornamen Bunga Cat Air & Botani Sudut Kanan Atas -->
+          <!-- Ornamen Bunga Cat Air & Botani Sudut Kanan Atas (SVG) -->
           <svg class="absolute -top-2 -right-2 w-14 h-14 pointer-events-none opacity-40 text-navy-800 print:opacity-35" viewBox="0 0 100 100" fill="currentColor">
             <path d="M10,90 Q30,70 50,50 Q70,70 90,90 Q50,75 10,90 Z" />
             <circle cx="35" cy="65" r="6" fill="#d4af37" />
