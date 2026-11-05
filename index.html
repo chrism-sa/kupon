@@ -29,7 +29,7 @@
           },
           fontFamily: {
             sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
-            serif: ['Georgia', 'serif']
+            serif: ['Georgia', 'Cambria', 'serif']
           }
         }
       }
@@ -67,6 +67,10 @@
 
     /* Print Style Optimization for Souvenir Cards */
     @media print {
+      body {
+        background: #ffffff !important;
+        color: #0f172a !important;
+      }
       body * {
         visibility: hidden;
       }
@@ -78,9 +82,8 @@
         left: 0;
         top: 0;
         width: 100%;
-        background: white !important;
-        color: black !important;
-        padding: 10mm;
+        background: #ffffff !important;
+        padding: 5mm;
       }
       .no-print {
         display: none !important;
@@ -88,11 +91,29 @@
       .ticket-card {
         page-break-inside: avoid;
         break-inside: avoid;
-        border: 1px dashed #718096 !important;
-        background: white !important;
-        color: #1a202c !important;
+        background: #ffffff !important;
+        border: 1.5px solid #d4af37 !important;
+        border-radius: 12px !important;
         box-shadow: none !important;
+        color: #1e293b !important;
       }
+    }
+
+    /* Animasi Garis Laser Kotak Pemindai */
+    @keyframes scan-line-move {
+      0% { top: 6%; opacity: 0.8; }
+      50% { top: 92%; opacity: 1; }
+      100% { top: 6%; opacity: 0.8; }
+    }
+    .scanner-laser-line {
+      position: absolute;
+      left: 8%;
+      right: 8%;
+      height: 3px;
+      background: linear-gradient(90deg, transparent, #f43f5e, #fbbf24, #f43f5e, transparent);
+      box-shadow: 0 0 10px #f43f5e;
+      animation: scan-line-move 2.2s infinite ease-in-out;
+      border-radius: 9999px;
     }
 
     @keyframes pulse-ring {
@@ -230,14 +251,21 @@
                 </button>
               </div>
 
-              <!-- Targeting Crosshair Overlay -->
+              <!-- Targeting Crosshair Overlay Interaktif -->
               <div id="scannerOverlay" class="absolute inset-0 pointer-events-none hidden items-center justify-center z-10">
-                <div class="w-56 h-56 border-2 border-rose-500/70 rounded-2xl relative shadow-[0_0_20px_rgba(244,63,94,0.3)]">
-                  <div class="absolute -top-1 -left-1 w-5 h-5 border-t-4 border-l-4 border-rose-400 rounded-tl-lg"></div>
-                  <div class="absolute -top-1 -right-1 w-5 h-5 border-t-4 border-r-4 border-rose-400 rounded-tr-lg"></div>
-                  <div class="absolute -bottom-1 -left-1 w-5 h-5 border-b-4 border-l-4 border-rose-400 rounded-bl-lg"></div>
-                  <div class="absolute -bottom-1 -right-1 w-5 h-5 border-b-4 border-r-4 border-rose-400 rounded-br-lg"></div>
-                  <div class="absolute inset-x-0 top-1/2 -translate-y-1/2 h-0.5 bg-rose-400/50 shadow-[0_0_8px_#f43f5e] animate-pulse"></div>
+                <div class="relative w-56 h-56 rounded-2xl border-2 border-rose-500/60 shadow-[0_0_0_9999px_rgba(2,6,23,0.7)] flex items-center justify-center">
+                  <!-- Sudut Bidik (Corner Brackets) -->
+                  <div class="absolute -top-1 -left-1 w-6 h-6 border-t-4 border-l-4 border-rose-400 rounded-tl-lg"></div>
+                  <div class="absolute -top-1 -right-1 w-6 h-6 border-t-4 border-r-4 border-rose-400 rounded-tr-lg"></div>
+                  <div class="absolute -bottom-1 -left-1 w-6 h-6 border-b-4 border-l-4 border-rose-400 rounded-bl-lg"></div>
+                  <div class="absolute -bottom-1 -right-1 w-6 h-6 border-b-4 border-r-4 border-rose-400 rounded-br-lg"></div>
+                  
+                  <!-- Garis Laser Bergerak -->
+                  <div class="scanner-laser-line"></div>
+
+                  <span class="absolute -bottom-7 px-2.5 py-0.5 rounded-full bg-slate-900/90 border border-rose-500/30 text-[10px] font-medium text-rose-300">
+                    Arahkan QR ke dalam kotak
+                  </span>
                 </div>
               </div>
             </div>
@@ -668,7 +696,7 @@
       if (!rawText || typeof rawText !== 'string') return null;
       const trimmed = rawText.trim();
 
-      // Case 1: URL Query parameters (e.g. https://domain.com/invitation?code=KUPON-001&name=Budi&table=A1)
+      // Case 1: URL Query parameters
       if (trimmed.includes('?') || trimmed.includes('&') || trimmed.includes('code=')) {
         try {
           const queryString = trimmed.includes('?') ? trimmed.split('?')[1] : trimmed;
@@ -713,7 +741,7 @@
         };
       }
 
-      // Case 4: Plain Code String (e.g. "SOUV-001" or Guest Name directly)
+      // Case 4: Plain Code String
       return {
         code: trimmed.toUpperCase(),
         name: trimmed,
@@ -727,7 +755,7 @@
     function processScannedVoucher(rawText) {
       if (scanCooldown) return;
       scanCooldown = true;
-      setTimeout(() => { scanCooldown = false; }, 1800); // Debounce scan to avoid duplicate fast read
+      setTimeout(() => { scanCooldown = false; }, 1800);
 
       const parsed = parseVoucherPayload(rawText);
       if (!parsed || !parsed.code) {
@@ -813,7 +841,7 @@
       lucide.createIcons();
     }
 
-    // Confetti animation on successful scan
+    // Confetti animation
     function triggerConfetti() {
       try {
         confetti({
@@ -823,7 +851,7 @@
           colors: ['#e11d48', '#f59e0b', '#10b981', '#ffffff']
         });
       } catch (e) {
-        // Graceful fallback if library blocked
+        // Fallback
       }
     }
 
@@ -832,14 +860,16 @@
     // ===================================================
     async function startScanner() {
       try {
-        const qrContainer = document.getElementById('qr-reader');
         if (!html5QrCode) {
           html5QrCode = new Html5Qrcode("qr-reader");
         }
 
         const config = {
           fps: 15,
-          qrbox: { width: 250, height: 250 },
+          qrbox: (viewWidth, viewHeight) => {
+            const edge = Math.floor(Math.min(viewWidth, viewHeight) * 0.72);
+            return { width: edge, height: edge };
+          },
           aspectRatio: 1.333333
         };
 
@@ -852,7 +882,7 @@
             processScannedVoucher(decodedText);
           },
           (errorMessage) => {
-            // Frame parse error ignored for smooth continuous scan
+            // Frame parse error
           }
         );
 
@@ -900,7 +930,6 @@
     async function checkTorchCapability() {
       const btnTorch = document.getElementById('btnTorch');
       try {
-        // html5-qrcode provides getRunningTrackCapabilities()
         if (html5QrCode && html5QrCode.getRunningTrackCapabilities) {
           const caps = html5QrCode.getRunningTrackCapabilities();
           if (caps && caps.torch) {
@@ -910,7 +939,7 @@
           }
         }
       } catch (e) {
-        // Torch not supported on device
+        // Torch not supported
       }
       btnTorch.classList.add('hidden');
     }
@@ -1190,29 +1219,34 @@
         const paddedNum = String(startIndex + index).padStart(3, '0');
         const voucherCode = `${prefix}${paddedNum}`;
 
-        // Create standard encoded QR payload
-        // Format as URL query string for maximum scanning flexibility
         const qrPayload = `?code=${encodeURIComponent(voucherCode)}&name=${encodeURIComponent(guestName)}&table=${encodeURIComponent(guestTable)}`;
 
         const card = document.createElement('div');
-        card.className = "ticket-card bg-slate-900 border border-slate-800 rounded-2xl p-4 flex flex-col justify-between shadow-md relative overflow-hidden text-slate-100";
+        card.className = "ticket-card bg-slate-900 border border-amber-500/40 rounded-2xl p-4 flex flex-col justify-between shadow-lg relative overflow-hidden print:p-4 print:m-1 print:border-amber-600";
         
         const qrid = `qrcode_card_${index}`;
 
         card.innerHTML = `
-          <div>
-            <div class="flex items-center justify-between pb-2 mb-2 border-b border-dashed border-slate-700">
-              <span class="text-[10px] font-bold text-amber-400 tracking-wider uppercase">${eventTitle}</span>
-              <span class="text-[9px] font-mono bg-slate-800 px-1.5 py-0.5 rounded text-slate-300">SOUVENIR PASS</span>
+          <div class="relative">
+            <div class="text-center pb-2 mb-2.5 border-b border-dashed border-amber-500/30 print:border-slate-300">
+              <span class="text-[9px] uppercase tracking-[0.2em] font-semibold text-rose-400 print:text-rose-700 block">Wedding Souvenir Voucher</span>
+              <h3 class="text-sm font-serif font-bold text-amber-200 print:text-slate-900 tracking-wide mt-0.5">${eventTitle}</h3>
             </div>
             
-            <div class="flex gap-3 items-center my-2">
-              <div id="${qrid}" class="p-1.5 bg-white rounded-xl shadow-inner flex items-center justify-center flex-shrink-0"></div>
+            <div class="flex gap-3.5 items-center my-2">
+              <div class="p-1.5 bg-white rounded-xl shadow-md border border-slate-200 flex-shrink-0 flex items-center justify-center">
+                <div id="${qrid}"></div>
+              </div>
               <div class="flex-1 min-w-0">
-                <h4 class="text-sm font-bold text-white truncate">${guestName}</h4>
-                <p class="text-[11px] text-slate-400 mt-0.5">${guestTable}</p>
+                <span class="text-[9px] uppercase tracking-wider text-slate-400 print:text-slate-500 block font-medium">Spesial Untuk:</span>
+                <h4 class="text-sm font-bold text-white print:text-slate-900 truncate font-serif leading-tight mt-0.5">${guestName}</h4>
+                <div class="flex items-center gap-1.5 mt-1.5">
+                  <span class="text-[10px] px-2 py-0.5 rounded bg-slate-800 text-slate-300 print:bg-slate-100 print:text-slate-700 border border-slate-700 print:border-slate-300 font-medium">
+                    ${guestTable}
+                  </span>
+                </div>
                 <div class="mt-2">
-                  <span class="font-mono text-[10px] font-bold text-amber-300 bg-amber-950/80 px-2 py-0.5 rounded border border-amber-500/30">
+                  <span class="font-mono text-[11px] font-extrabold text-amber-300 print:text-amber-800 bg-amber-950/60 print:bg-amber-50 px-2 py-0.5 rounded border border-amber-500/40 print:border-amber-300 inline-block tracking-wider">
                     ${voucherCode}
                   </span>
                 </div>
@@ -1220,8 +1254,13 @@
             </div>
           </div>
 
-          <div class="text-[9px] text-slate-500 text-center pt-2 mt-2 border-t border-dashed border-slate-800">
-            Tunjukkan kode QR ini kepada panitia suvenir di pintu keluar
+          <div class="pt-2 mt-2 border-t border-dashed border-slate-800 print:border-slate-200 text-center">
+            <p class="text-[9px] text-slate-400 print:text-slate-600 italic">
+              "Terima kasih atas kehadiran serta doa restu Anda."
+            </p>
+            <p class="text-[8px] text-rose-400/90 print:text-rose-600 font-semibold uppercase tracking-wider mt-0.5">
+              Harap tunjukkan kupon ini kepada panitia suvenir
+            </p>
           </div>
         `;
 
@@ -1230,8 +1269,8 @@
         // Render QR Code inside ticket
         new QRCode(document.getElementById(qrid), {
           text: qrPayload,
-          width: 80,
-          height: 80,
+          width: 82,
+          height: 82,
           colorDark: "#000000",
           colorLight: "#ffffff",
           correctLevel: QRCode.CorrectLevel.M
@@ -1250,7 +1289,6 @@
       updateDashboardMetrics();
       renderHistoryTable();
 
-      // Keyboard shortcut for quick manual code test (Enter key in text field)
       const manualInput = document.getElementById('manualCodeInput');
       if (manualInput) {
         manualInput.addEventListener('keydown', (e) => {
