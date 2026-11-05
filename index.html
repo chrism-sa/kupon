@@ -36,7 +36,7 @@
     }
   </script>
 
-  <!-- External Libraries (QR Engine, Confetti, Lucide Icons) -->
+  <!-- External Libraries -->
   <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
@@ -49,7 +49,7 @@
     ::-webkit-scrollbar-thumb { background: rgba(225, 29, 72, 0.4); border-radius: 4px; }
     ::-webkit-scrollbar-thumb:hover { background: rgba(225, 29, 72, 0.8); }
 
-    /* Custom Camera Viewport Styling */
+    /* Custom Camera Viewport Styling untuk iPhone / Mobile */
     #qr-reader {
       border: none !important;
       background: transparent !important;
@@ -63,46 +63,12 @@
       width: 100% !important;
       height: 100% !important;
     }
-    /* Sembunyikan shaded region putih/abu-abu bawaan html5-qrcode */
+    /* Sembunyikan elemen shaded box bawaan library yang membuat lonjong */
     #qr-shaded-region,
     #qr-reader__scan_region svg,
     #qr-reader__dashboard_section_csr,
     #qr-reader__dashboard_section_swaplink {
       display: none !important;
-    }
-
-    /* Print Style Optimization for Souvenir Cards */
-    @media print {
-      body {
-        background: #ffffff !important;
-        color: #0f172a !important;
-      }
-      body * {
-        visibility: hidden;
-      }
-      #print-area, #print-area * {
-        visibility: visible;
-      }
-      #print-area {
-        position: absolute;
-        left: 0;
-        top: 0;
-        width: 100%;
-        background: #ffffff !important;
-        padding: 5mm;
-      }
-      .no-print {
-        display: none !important;
-      }
-      .ticket-card {
-        page-break-inside: avoid;
-        break-inside: avoid;
-        background: #ffffff !important;
-        border: 1.5px solid #d4af37 !important;
-        border-radius: 12px !important;
-        box-shadow: none !important;
-        color: #1e293b !important;
-      }
     }
 
     /* Animasi Garis Laser Kotak Pemindai */
@@ -122,13 +88,61 @@
       border-radius: 9999px;
     }
 
-    @keyframes pulse-ring {
-      0% { transform: scale(0.95); opacity: 0.8; }
-      50% { transform: scale(1.05); opacity: 0.4; }
-      100% { transform: scale(0.95); opacity: 0.8; }
+    /* ======================================================== */
+    /* LAYOUT KHUSUS PRINT A4: 12 KUPON (3 KOLOM X 4 BARIS)     */
+    /* ======================================================== */
+    @page {
+      size: A4 portrait;
+      margin: 4mm; /* Margin super minim */
     }
-    .scanner-active-ring {
-      animation: pulse-ring 2s infinite ease-in-out;
+
+    @media print {
+      body {
+        background: #ffffff !important;
+        color: #000000 !important;
+        padding: 0 !important;
+        margin: 0 !important;
+      }
+      body * {
+        visibility: hidden;
+      }
+      #print-area, #print-area * {
+        visibility: visible;
+      }
+      #print-area {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        background: #ffffff !important;
+        padding: 0 !important;
+        margin: 0 !important;
+      }
+      .no-print {
+        display: none !important;
+      }
+      /* Grid 3 kolom presisi untuk 12 kupon per lembar A4 */
+      .print-grid-a4 {
+        display: grid !important;
+        grid-template-columns: repeat(3, 1fr) !important;
+        gap: 2.5mm !important;
+        width: 100% !important;
+      }
+      .ticket-card {
+        page-break-inside: avoid;
+        break-inside: avoid;
+        background: #ffffff !important;
+        border: 1px dashed #475569 !important;
+        border-radius: 6px !important;
+        box-shadow: none !important;
+        color: #0f172a !important;
+        height: 67mm !important; /* Pas 4 baris x 67mm = ~268mm dalam kertas A4 (297mm) */
+        padding: 6px 8px !important;
+        box-sizing: border-box !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: space-between !important;
+      }
     }
   </style>
 </head>
@@ -149,7 +163,7 @@
           </h1>
           <p class="text-[11px] text-slate-400 flex items-center gap-1.5">
             <span class="w-2 h-2 rounded-full bg-emerald-500 inline-block animate-pulse"></span>
-            Offline-Ready Client
+            Mode Aman & Terverifikasi
           </p>
         </div>
       </div>
@@ -162,7 +176,7 @@
         </button>
         <button id="tabBtnGenerator" onclick="switchTab('generator')" class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-slate-200 transition-all duration-200">
           <i data-lucide="qr-code" class="w-4 h-4"></i>
-          <span>Generator</span>
+          <span>Generator & Data</span>
         </button>
       </nav>
     </div>
@@ -191,11 +205,11 @@
         </div>
 
         <div class="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-3 md:p-4 backdrop-blur-md relative overflow-hidden shadow-sm">
-          <div class="text-[11px] font-medium text-slate-400 uppercase tracking-wider">Terakhir Ditukar</div>
-          <div id="statLastTime" class="text-xs md:text-sm font-semibold text-amber-300 mt-2 truncate">-</div>
-          <div id="statLastName" class="text-[10px] text-slate-400 truncate mt-0.5">Belum ada aktivitas</div>
+          <div class="text-[11px] font-medium text-slate-400 uppercase tracking-wider">Kupon Terdaftar</div>
+          <div id="statRegisteredTotal" class="text-xl md:text-3xl font-extrabold text-amber-300 mt-1">0</div>
+          <div class="text-[10px] text-slate-500 mt-0.5">Database kupon sah</div>
           <div class="absolute -right-2 -bottom-2 text-amber-500/10 pointer-events-none">
-            <i data-lucide="clock" class="w-14 h-14"></i>
+            <i data-lucide="database" class="w-14 h-14"></i>
           </div>
         </div>
 
@@ -224,15 +238,9 @@
                 <h2 class="text-sm font-bold text-slate-200">Kamera Pemindai Kupon</h2>
               </div>
               <div class="flex items-center gap-1.5">
-                <!-- Camera Flip Button -->
                 <button id="btnSwitchCamera" onclick="toggleCameraFacing()" title="Ganti Kamera Depan/Belakang" class="p-2 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-300 border border-slate-700/60 transition active:scale-95">
                   <i data-lucide="refresh-cw" class="w-4 h-4"></i>
                 </button>
-                <!-- Flashlight Button (if supported) -->
-                <button id="btnTorch" onclick="toggleTorch()" title="Lampu Flash" class="p-2 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-300 border border-slate-700/60 transition active:scale-95 hidden">
-                  <i data-lucide="zap" class="w-4 h-4"></i>
-                </button>
-                <!-- Scanner Start/Stop Button -->
                 <button id="btnToggleScanner" onclick="toggleScanner()" class="px-3 py-1.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-semibold shadow-md shadow-rose-900/30 flex items-center gap-1.5 transition active:scale-95">
                   <i data-lucide="play" class="w-3.5 h-3.5"></i>
                   <span id="btnScannerText">Mulai Scan</span>
@@ -240,20 +248,20 @@
               </div>
             </div>
 
-            <!-- Viewport Container -->
-            <div class="relative w-full aspect-square max-w-[340px] mx-auto bg-black/60 rounded-2xl overflow-hidden border border-slate-800 flex items-center justify-center">
+            <!-- Viewport Container (Kotak Presisi Bujur Sangkar untuk iPhone) -->
+            <div class="relative w-full aspect-square max-w-[320px] mx-auto bg-black rounded-2xl overflow-hidden border border-slate-800 flex items-center justify-center">
               <div id="qr-reader" class="w-full h-full"></div>
 
               <!-- Idle Placeholder Overlay -->
               <div id="scannerPlaceholder" class="absolute inset-0 flex flex-col items-center justify-center p-6 text-center bg-slate-950/90 z-10 transition-opacity">
-                <div class="w-16 h-16 rounded-2xl bg-rose-950/60 border border-rose-500/30 flex items-center justify-center text-rose-400 mb-3 scanner-active-ring">
+                <div class="w-16 h-16 rounded-2xl bg-rose-950/60 border border-rose-500/30 flex items-center justify-center text-rose-400 mb-3">
                   <i data-lucide="camera" class="w-8 h-8"></i>
                 </div>
-                <h3 class="text-sm font-semibold text-slate-200">Kamera Sedang Tidak Aktif</h3>
-                <p class="text-xs text-slate-400 max-w-xs mt-1">Tekan tombol "Mulai Scan" di atas untuk menyalakan pemindai kamera smartphone panitia.</p>
+                <h3 class="text-sm font-semibold text-slate-200">Kamera Tidak Aktif</h3>
+                <p class="text-xs text-slate-400 max-w-xs mt-1">Tekan tombol "Mulai Scan" untuk memindai kupon suvenir.</p>
                 <button onclick="startScanner()" class="mt-4 px-4 py-2 bg-gradient-to-r from-rose-600 to-rose-700 hover:from-rose-500 hover:to-rose-600 text-white text-xs font-bold rounded-xl shadow-lg shadow-rose-950 flex items-center gap-2">
                   <i data-lucide="scan" class="w-4 h-4"></i>
-                  Aktifkan Kamera Sekarang
+                  Aktifkan Kamera
                 </button>
               </div>
 
@@ -277,14 +285,16 @@
             </div>
           </div>
 
-          <!-- Manual Code Fallback -->
+          <!-- Secure Manual Code Fallback -->
           <div class="mt-4 pt-3 border-t border-slate-800/80">
-            <label class="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Input Kode Manual (Alternatif)</label>
+            <label class="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-1.5">
+              Input Kode Manual Terverifikasi
+            </label>
             <form onsubmit="handleManualSubmit(event)" class="flex gap-2">
-              <input type="text" id="manualCodeInput" placeholder="Contoh: SOUV-001 atau Nama Tamu" class="flex-1 bg-slate-950/80 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500 transition">
+              <input type="text" id="manualCodeInput" placeholder="Contoh: G-001 atau F-002" class="flex-1 bg-slate-950/80 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-100 uppercase font-mono placeholder-slate-500 focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500 transition">
               <button type="submit" class="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold rounded-xl border border-slate-700 transition flex items-center gap-1.5 active:scale-95">
-                <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
-                <span>Cek</span>
+                <i data-lucide="shield-check" class="w-3.5 h-3.5 text-rose-400"></i>
+                <span>Verifikasi</span>
               </button>
             </form>
           </div>
@@ -293,27 +303,29 @@
         <!-- Right Column: Verification Result Panel -->
         <div class="lg:col-span-5 flex flex-col gap-4">
 
-          <!-- Alert / Validation Status Display -->
           <div id="validationResultCard" class="flex-1 bg-slate-900/70 border border-slate-800 rounded-3xl p-5 backdrop-blur-md shadow-xl flex flex-col justify-center items-center text-center relative overflow-hidden transition-all duration-300">
-            <!-- Default Idle State -->
+            <!-- Idle State -->
             <div id="statusStateIdle" class="flex flex-col items-center">
               <div class="w-14 h-14 rounded-2xl bg-slate-800/80 border border-slate-700/80 flex items-center justify-center text-slate-400 mb-3">
                 <i data-lucide="qr-code" class="w-7 h-7"></i>
               </div>
               <h3 class="text-base font-bold text-slate-200">Menunggu Kupon</h3>
-              <p class="text-xs text-slate-400 mt-1 max-w-xs">Arahkan kamera ke QR code undangan atau kupon souvenir tamu undangan pernikahan.</p>
+              <p class="text-xs text-slate-400 mt-1 max-w-xs">Scan QR code atau masukkan kode kupon terdaftar untuk validasi penukaran.</p>
             </div>
 
-            <!-- SUCCESS STATE: Kupon Berhasil Ditukar -->
+            <!-- SUCCESS STATE: Kupon Sah & Pertama Ditukar -->
             <div id="statusStateSuccess" class="hidden flex-col items-center w-full">
               <div class="w-16 h-16 rounded-full bg-emerald-500/20 border-2 border-emerald-500/80 flex items-center justify-center text-emerald-400 mb-2 animate-bounce">
                 <i data-lucide="check" class="w-8 h-8"></i>
               </div>
               <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 mb-1">
-                Kupon Valid & Ditukarkan
+                Kupon Sah & Berhasil Ditukar
               </span>
               <h3 id="resGuestName" class="text-xl font-bold text-white mt-1">Nama Tamu</h3>
-              <p id="resVoucherCode" class="font-mono text-xs text-amber-300 bg-amber-950/60 px-2 py-0.5 rounded-md border border-amber-500/30 mt-1">SOUV-001</p>
+              <div class="flex items-center gap-2 mt-1">
+                <span id="resVoucherCode" class="font-mono text-xs text-amber-300 bg-amber-950/60 px-2 py-0.5 rounded-md border border-amber-500/30">G-001</span>
+                <span id="resCategoryBadge" class="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-800 text-slate-300">UMUM</span>
+              </div>
               
               <div class="w-full mt-4 bg-slate-950/60 rounded-xl p-3 border border-slate-800 text-left text-xs space-y-1.5">
                 <div class="flex justify-between text-slate-400">
@@ -325,15 +337,15 @@
                   <span id="resTimestamp" class="text-slate-200 font-semibold">-</span>
                 </div>
                 <div class="flex justify-between text-slate-400">
-                  <span>Status Suvenir:</span>
-                  <span class="text-emerald-400 font-semibold flex items-center gap-1">
+                  <span>Instruksi:</span>
+                  <span class="text-emerald-400 font-bold flex items-center gap-1">
                     <i data-lucide="package-check" class="w-3.5 h-3.5"></i> Serahkan Suvenir
                   </span>
                 </div>
               </div>
             </div>
 
-            <!-- DUPLICATE WARNING STATE: Kupon Sudah Pernah Ditukar -->
+            <!-- DUPLICATE WARNING STATE -->
             <div id="statusStateDuplicate" class="hidden flex-col items-center w-full animate-shake">
               <div class="w-16 h-16 rounded-full bg-rose-500/20 border-2 border-rose-500/80 flex items-center justify-center text-rose-400 mb-2">
                 <i data-lucide="alert-triangle" class="w-8 h-8"></i>
@@ -342,10 +354,10 @@
                 Peringatan: Kupon Duplikat!
               </span>
               <h3 id="dupGuestName" class="text-lg font-bold text-rose-200 mt-1">Nama Tamu</h3>
-              <p id="dupVoucherCode" class="font-mono text-xs text-rose-300 bg-rose-950/80 px-2 py-0.5 rounded-md border border-rose-500/30 mt-1">SOUV-001</p>
+              <p id="dupVoucherCode" class="font-mono text-xs text-rose-300 bg-rose-950/80 px-2 py-0.5 rounded-md border border-rose-500/30 mt-1">G-001</p>
 
               <div class="w-full mt-3 bg-rose-950/40 rounded-xl p-3 border border-rose-900/60 text-left text-xs space-y-1.5">
-                <div class="text-rose-200 font-medium flex items-center gap-1.5">
+                <div class="text-rose-200 font-semibold flex items-center gap-1.5">
                   <i data-lucide="info" class="w-3.5 h-3.5"></i>
                   Kupon ini sudah diambil sebelumnya!
                 </div>
@@ -356,21 +368,23 @@
               </div>
             </div>
 
-            <!-- INVALID CODE STATE -->
+            <!-- UNREGISTERED / FRAUD PREVENTION STATE -->
             <div id="statusStateInvalid" class="hidden flex-col items-center w-full">
               <div class="w-14 h-14 rounded-full bg-amber-500/20 border-2 border-amber-500/80 flex items-center justify-center text-amber-400 mb-2">
-                <i data-lucide="x-circle" class="w-7 h-7"></i>
+                <i data-lucide="shield-alert" class="w-7 h-7"></i>
               </div>
               <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-amber-500/20 text-amber-300 border border-amber-500/40 mb-1">
-                Data Tidak Terbaca
+                Akses Ditolak
               </span>
-              <h3 class="text-sm font-bold text-slate-200 mt-1">Kode QR Tidak Valid</h3>
-              <p class="text-xs text-slate-400 mt-1 max-w-xs" id="invalidReason">QR tidak memuat identifier kupon pernikahan yang valid.</p>
+              <h3 class="text-sm font-bold text-slate-100 mt-1">Kupon Tidak Terdaftar</h3>
+              <p class="text-xs text-slate-400 mt-1 max-w-xs" id="invalidReason">
+                Kode ini tidak ada di daftar kupon yang sah.
+              </p>
             </div>
 
           </div>
 
-          <!-- Audio Settings & Fast Action Quick Controls -->
+          <!-- Audio Settings -->
           <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-3 backdrop-blur-md flex items-center justify-between text-xs text-slate-300">
             <div class="flex items-center gap-2">
               <i data-lucide="volume-2" class="w-4 h-4 text-slate-400"></i>
@@ -393,53 +407,41 @@
               <i data-lucide="history" class="w-4 h-4 text-rose-400"></i>
               Riwayat Penukaran Suvenir
             </h2>
-            <p class="text-xs text-slate-400">Daftar kupon yang berhasil ditukarkan pada perangkat panitia ini.</p>
+            <p class="text-xs text-slate-400">Kupon yang telah sukses divalidasi dan diambil.</p>
           </div>
 
           <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto">
-            <!-- Search Filter -->
             <div class="relative flex-1 sm:w-48">
               <i data-lucide="search" class="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-500"></i>
-              <input type="text" id="searchInput" oninput="renderHistoryTable()" placeholder="Cari nama/kode..." class="w-full bg-slate-950/80 border border-slate-800 rounded-xl pl-8 pr-3 py-1.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-rose-500">
+              <input type="text" id="searchInput" oninput="renderHistoryTable()" placeholder="Cari kode/nama..." class="w-full bg-slate-950/80 border border-slate-800 rounded-xl pl-8 pr-3 py-1.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-rose-500">
             </div>
 
-            <!-- Export Buttons -->
-            <button onclick="exportToCSV()" class="px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700/80 rounded-xl text-xs font-semibold flex items-center gap-1.5 active:scale-95 transition" title="Unduh CSV">
+            <button onclick="exportToCSV()" class="px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700/80 rounded-xl text-xs font-semibold flex items-center gap-1.5 active:scale-95 transition">
               <i data-lucide="file-spreadsheet" class="w-3.5 h-3.5 text-emerald-400"></i>
               <span>CSV</span>
             </button>
-            <button onclick="exportToJSON()" class="px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700/80 rounded-xl text-xs font-semibold flex items-center gap-1.5 active:scale-95 transition" title="Unduh JSON">
-              <i data-lucide="code" class="w-3.5 h-3.5 text-amber-400"></i>
-              <span>JSON</span>
-            </button>
-
-            <!-- Reset Button -->
-            <button onclick="openResetModal()" class="px-2.5 py-1.5 bg-rose-950/40 hover:bg-rose-900/60 text-rose-300 border border-rose-900/60 rounded-xl text-xs font-semibold flex items-center gap-1.5 active:scale-95 transition" title="Reset Semua Data">
+            <button onclick="openResetModal()" class="px-2.5 py-1.5 bg-rose-950/40 hover:bg-rose-900/60 text-rose-300 border border-rose-900/60 rounded-xl text-xs font-semibold flex items-center gap-1.5 active:scale-95 transition">
               <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
               <span>Reset</span>
             </button>
           </div>
         </div>
 
-        <!-- History Table -->
         <div class="overflow-x-auto rounded-2xl border border-slate-800/90">
           <table class="w-full text-left text-xs text-slate-300">
             <thead class="bg-slate-950/80 text-[11px] font-bold text-slate-400 uppercase tracking-wider border-b border-slate-800">
               <tr>
                 <th class="px-4 py-3">No</th>
                 <th class="px-4 py-3">Kode Kupon</th>
+                <th class="px-4 py-3">Kategori</th>
                 <th class="px-4 py-3">Nama Tamu</th>
-                <th class="px-4 py-3">Meja / Info</th>
                 <th class="px-4 py-3">Waktu Penukaran</th>
                 <th class="px-4 py-3 text-right">Aksi</th>
               </tr>
             </thead>
-            <tbody id="historyTableBody" class="divide-y divide-slate-800/60 bg-slate-900/30">
-              <!-- Dynamically Populated Rows -->
-            </tbody>
+            <tbody id="historyTableBody" class="divide-y divide-slate-800/60 bg-slate-900/30"></tbody>
           </table>
           <div id="emptyHistoryState" class="p-8 text-center text-slate-500 text-xs hidden">
-            <i data-lucide="inbox" class="w-8 h-8 mx-auto mb-2 text-slate-600"></i>
             Belum ada kupon yang ditukarkan pada sesi ini.
           </div>
         </div>
@@ -447,79 +449,83 @@
 
     </section>
 
-    <!-- ========================================== -->
-    <!-- SECTION 2: MASS QR CODE BATCH GENERATOR    -->
-    <!-- ========================================== -->
+    <!-- ======================================================== -->
+    <!-- SECTION 2: MASS GENERATOR & MASTER DATA KUPO TERSIMPAN   -->
+    <!-- ======================================================== -->
     <section id="generatorSection" class="space-y-6 hidden">
       <div class="bg-slate-900/70 border border-slate-800 rounded-3xl p-5 md:p-6 backdrop-blur-md shadow-xl space-y-5">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-800">
           <div>
             <h2 class="text-base font-bold text-slate-100 flex items-center gap-2">
               <i data-lucide="layers" class="w-5 h-5 text-amber-400"></i>
-              Mass QR Voucher Batch Generator
+              Generator Kupon & Database Master
             </h2>
-            <p class="text-xs text-slate-400">Generate puluhan atau ratusan tiket kupon suvenir pernikahan sekaligus siap cetak.</p>
+            <p class="text-xs text-slate-400">Generate kupon bertahap tanpa menghapus kupon yang sudah ada sebelumnya.</p>
           </div>
           <button onclick="window.print()" class="px-4 py-2 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-bold text-xs rounded-xl shadow-lg shadow-amber-950/50 flex items-center gap-2 transition active:scale-95 no-print">
             <i data-lucide="printer" class="w-4 h-4"></i>
-            Cetak Kartu Kupon (A4)
+            Cetak 12 Kupon per Lembar A4
           </button>
         </div>
 
-        <!-- Configuration Inputs -->
+        <!-- Input Konfigurasi Kategori G & F -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
-            <label class="block text-xs font-semibold text-slate-300 mb-1">Prefix Kode Kupon</label>
-            <input type="text" id="genPrefix" value="SOUV-" class="w-full bg-slate-950/80 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-amber-500">
-            <p class="text-[10px] text-slate-500 mt-1">Misal: SOUV- atau WDD-</p>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Kategori Tamu</label>
+            <select id="genCategory" class="w-full bg-slate-950/80 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-amber-500">
+              <option value="G">G - Tamu UMUM</option>
+              <option value="F">F - KERABAT / Keluarga</option>
+            </select>
+            <p class="text-[10px] text-slate-500 mt-1">Kode otomatis berawalan G- atau F-</p>
           </div>
           <div>
-            <label class="block text-xs font-semibold text-slate-300 mb-1">Nomor Awal Indeks</label>
-            <input type="number" id="genStartIndex" value="1" min="1" class="w-full bg-slate-950/80 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-amber-500">
-            <p class="text-[10px] text-slate-500 mt-1">Mulai urutan nomor kupon</p>
-          </div>
-          <div>
-            <label class="block text-xs font-semibold text-slate-300 mb-1">Judul Kartu Acara</label>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Judul Acara di Kupon</label>
             <input type="text" id="genEventTitle" value="The Wedding of Romeo & Juliet" class="w-full bg-slate-950/80 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-amber-500">
-            <p class="text-[10px] text-slate-500 mt-1">Muncul di header kupon suvenir</p>
+            <p class="text-[10px] text-slate-500 mt-1">Header cetak kupon</p>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Status Database Kupon</label>
+            <div class="bg-slate-950/80 border border-slate-800 rounded-xl px-3 py-2 text-xs text-amber-300 font-mono flex items-center justify-between">
+              <span>Total Terdaftar:</span>
+              <span id="registeredCounterBadge" class="font-bold text-white">0 Kupon</span>
+            </div>
+            <p class="text-[10px] text-slate-500 mt-1">Tersimpan permanen di memori lokal</p>
           </div>
         </div>
 
         <div>
           <div class="flex justify-between items-center mb-1">
-            <label class="block text-xs font-semibold text-slate-300">Daftar Tamu (1 Tamu per Baris)</label>
+            <label class="block text-xs font-semibold text-slate-300">Daftar Tamu Baru (1 Tamu per Baris)</label>
             <button onclick="loadSampleGuests()" class="text-[11px] text-amber-400 hover:text-amber-300 font-medium">
-              Isi Data Sampel
+              Isi Contoh Tamu
             </button>
           </div>
-          <p class="text-[11px] text-slate-400 mb-2">Format: <code class="text-amber-300">Nama Tamu, Meja/Keterangan</code> (atau hanya nama saja)</p>
-          <textarea id="genGuestList" rows="6" placeholder="Budi Santoso, Meja VIP 01&#10;Siti Aminah, Meja Melati 03&#10;Dr. Handoko, Meja VIP 02" class="w-full bg-slate-950/80 border border-slate-800 rounded-xl p-3 text-xs font-mono text-slate-200 placeholder-slate-600 focus:outline-none focus:border-amber-500"></textarea>
+          <p class="text-[11px] text-slate-400 mb-2">Format: <code class="text-amber-300">Nama Tamu, Meja/Keterangan</code> (atau hanya nama)</p>
+          <textarea id="genGuestList" rows="5" placeholder="Budi Santoso, Meja Melati 01&#10;dr. Ratna, VIP Kerabat" class="w-full bg-slate-950/80 border border-slate-800 rounded-xl p-3 text-xs font-mono text-slate-200 placeholder-slate-600 focus:outline-none focus:border-amber-500"></textarea>
         </div>
 
-        <div class="flex items-center gap-3">
-          <button onclick="generateBatchCards()" class="px-5 py-2.5 bg-gradient-to-r from-rose-600 to-rose-700 hover:from-rose-500 hover:to-rose-600 text-white font-bold text-xs rounded-xl shadow-lg shadow-rose-950 flex items-center gap-2 transition active:scale-95">
-            <i data-lucide="sparkles" class="w-4 h-4"></i>
-            Generate Kupon Sekarang
+        <div class="flex flex-wrap items-center gap-3">
+          <button onclick="handleGenerateBatch()" class="px-5 py-2.5 bg-gradient-to-r from-rose-600 to-rose-700 hover:from-rose-500 hover:to-rose-600 text-white font-bold text-xs rounded-xl shadow-lg shadow-rose-950 flex items-center gap-2 transition active:scale-95">
+            <i data-lucide="plus-circle" class="w-4 h-4"></i>
+            Tambah & Generate Kupon
           </button>
-          <button onclick="clearBatchCards()" class="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold rounded-xl border border-slate-700 transition">
-            Bersihkan
+          <button onclick="confirmClearMasterCoupons()" class="px-4 py-2.5 bg-rose-950/30 hover:bg-rose-900/50 text-rose-300 text-xs font-semibold rounded-xl border border-rose-900/40 transition">
+            Hapus Semua Data Kupon
           </button>
         </div>
       </div>
 
-      <!-- Printable Area Container -->
+      <!-- Area Tampilan Kartu Siap Cetak -->
       <div id="print-area">
-        <div id="cardsGridContainer" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-          <!-- Dynamically generated ticket voucher cards will appear here -->
+        <div id="cardsGridContainer" class="print-grid-a4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+          <!-- Kupon ter-render disini -->
         </div>
       </div>
     </section>
 
   </main>
 
-  <!-- ========================================== -->
-  <!-- MODAL: RESET CONFIRMATION (DOUBLE SAFETY) -->
-  <!-- ========================================== -->
+  <!-- Modal Konfirmasi Reset Riwayat -->
   <div id="resetModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 hidden">
     <div class="bg-slate-900 border border-rose-900/60 rounded-3xl max-w-sm w-full p-5 shadow-2xl space-y-4">
       <div class="flex items-center gap-3 text-rose-400">
@@ -527,74 +533,63 @@
           <i data-lucide="alert-octagon" class="w-6 h-6"></i>
         </div>
         <div>
-          <h3 class="text-sm font-bold text-white">Konfirmasi Reset Data</h3>
-          <p class="text-[11px] text-slate-400">Tindakan ini menghapus seluruh riwayat.</p>
+          <h3 class="text-sm font-bold text-white">Reset Riwayat Saja</h3>
+          <p class="text-[11px] text-slate-400">Menghapus riwayat scan tanpa menghapus master kupon.</p>
         </div>
       </div>
-
       <p class="text-xs text-slate-300">
-        Seluruh data penukaran kupon lokal yang tersimpan di browser ini akan dihapus permanen. Ketik kata <strong class="text-rose-400">RESET</strong> di bawah untuk melanjutkan:
+        Ketik kata <strong class="text-rose-400">RESET</strong> di bawah ini:
       </p>
-
       <input type="text" id="resetConfirmInput" placeholder="Ketik RESET" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs font-mono text-center tracking-widest text-rose-400 uppercase focus:outline-none focus:border-rose-500">
-
       <div class="flex items-center gap-2 pt-2">
-        <button onclick="closeResetModal()" class="flex-1 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold rounded-xl transition">
-          Batal
-        </button>
-        <button id="btnConfirmReset" onclick="executeResetData()" disabled class="flex-1 py-2 bg-rose-600 disabled:bg-rose-950/50 disabled:text-slate-600 hover:bg-rose-500 text-white text-xs font-bold rounded-xl transition">
-          Hapus Permanen
-        </button>
+        <button onclick="closeResetModal()" class="flex-1 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold rounded-xl transition">Batal</button>
+        <button id="btnConfirmReset" onclick="executeResetData()" disabled class="flex-1 py-2 bg-rose-600 disabled:bg-rose-950/50 disabled:text-slate-600 hover:bg-rose-500 text-white text-xs font-bold rounded-xl transition">Hapus</button>
       </div>
     </div>
   </div>
 
-  <!-- Sound Audio Synthesizer (Web Audio API) & Application Core Logic -->
   <script>
     // ===================================================
-    // CONSTANTS & STATE DECLARATION
+    // MASTER KEYS & STATE (PERSISTEN DATABASE)
     // ===================================================
-    const STORAGE_KEY = 'wedding_souvenir_vouchers_v1';
+    const STORAGE_KEY_REDEEMED = 'wedding_redeemed_v3';
+    const STORAGE_KEY_REGISTERED = 'wedding_master_coupons_v3';
+
     let html5QrCode = null;
     let isScannerRunning = false;
-    let currentFacingMode = "environment"; // default back camera
-    let hasTorch = false;
-    let isTorchOn = false;
+    let currentFacingMode = "environment";
     let scanCooldown = false;
 
-    // Load data from localStorage
-    function getVouchersData() {
+    // Ambil Data Riwayat & Master
+    function getRedeemedList() {
       try {
-        const raw = localStorage.getItem(STORAGE_KEY);
+        const raw = localStorage.getItem(STORAGE_KEY_REDEEMED);
         return raw ? JSON.parse(raw) : [];
-      } catch (e) {
-        console.error("Gagal membaca LocalStorage:", e);
-        return [];
-      }
+      } catch (e) { return []; }
     }
 
-    function saveVouchersData(data) {
+    function getRegisteredCoupons() {
       try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-      } catch (e) {
-        showToast("Penyimpanan lokal penuh atau tidak diizinkan!", "error");
-        console.error(e);
-      }
+        const raw = localStorage.getItem(STORAGE_KEY_REGISTERED);
+        return raw ? JSON.parse(raw) : [];
+      } catch (e) { return []; }
     }
 
-    // ===================================================
-    // AUDIO SYNTHESIS (Web Audio API - No External Audio)
-    // ===================================================
-    let audioCtx = null;
+    function saveRedeemedList(data) {
+      localStorage.setItem(STORAGE_KEY_REDEEMED, JSON.stringify(data));
+    }
 
+    function saveRegisteredCoupons(data) {
+      localStorage.setItem(STORAGE_KEY_REGISTERED, JSON.stringify(data));
+    }
+
+    // Audio Feedback
+    let audioCtx = null;
     function getAudioContext() {
       if (!audioCtx) {
-        const AudioContext = window.AudioContext || window.webkitAudioContext;
-        audioCtx = new AudioContext();
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
       }
-      if (audioCtx.state === 'suspended') {
-        audioCtx.resume();
-      }
+      if (audioCtx.state === 'suspended') audioCtx.resume();
       return audioCtx;
     }
 
@@ -603,34 +598,18 @@
       try {
         const ctx = getAudioContext();
         const now = ctx.currentTime;
-        const osc1 = ctx.createOscillator();
-        const osc2 = ctx.createOscillator();
+        const osc = ctx.createOscillator();
         const gain = ctx.createGain();
-
-        osc1.type = 'triangle';
-        osc2.type = 'sine';
-
-        // Pleasant ascending major 3rd/5th chime
-        osc1.frequency.setValueAtTime(587.33, now); // D5
-        osc1.frequency.exponentialRampToValueAtTime(880, now + 0.12); // A5
-
-        osc2.frequency.setValueAtTime(880, now + 0.12);
-        osc2.frequency.exponentialRampToValueAtTime(1174.66, now + 0.28); // D6
-
-        gain.gain.setValueAtTime(0.2, now);
-        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.5);
-
-        osc1.connect(gain);
-        osc2.connect(gain);
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(587.33, now);
+        osc.frequency.exponentialRampToValueAtTime(1046.50, now + 0.18);
+        gain.gain.setValueAtTime(0.3, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+        osc.connect(gain);
         gain.connect(ctx.destination);
-
-        osc1.start(now);
-        osc2.start(now + 0.12);
-        osc1.stop(now + 0.12);
-        osc2.stop(now + 0.5);
-      } catch (e) {
-        console.warn("Audio Context playback error:", e);
-      }
+        osc.start(now);
+        osc.stop(now + 0.4);
+      } catch (e) {}
     }
 
     function playSoundDuplicate() {
@@ -640,32 +619,21 @@
         const now = ctx.currentTime;
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
-
         osc.type = 'sawtooth';
-        // Low frequency warning buzzer
         osc.frequency.setValueAtTime(150, now);
         osc.frequency.setValueAtTime(110, now + 0.15);
-
-        gain.gain.setValueAtTime(0.25, now);
+        gain.gain.setValueAtTime(0.3, now);
         gain.gain.exponentialRampToValueAtTime(0.01, now + 0.35);
-
         osc.connect(gain);
         gain.connect(ctx.destination);
-
         osc.start(now);
         osc.stop(now + 0.35);
-      } catch (e) {
-        console.warn("Audio Context playback error:", e);
-      }
+      } catch (e) {}
     }
 
-    // ===================================================
-    // TOAST NOTIFICATIONS HELPER
-    // ===================================================
     function showToast(message, type = 'info') {
       const container = document.getElementById('toastContainer');
       const toast = document.createElement('div');
-      
       let borderCol = 'border-slate-700 bg-slate-900/95 text-slate-200';
       let icon = 'info';
 
@@ -679,16 +647,10 @@
 
       toast.className = `flex items-center gap-2 px-4 py-2.5 rounded-xl border ${borderCol} text-xs shadow-xl backdrop-blur-md transform transition-all duration-300 translate-y-2 opacity-0 pointer-events-auto`;
       toast.innerHTML = `<i data-lucide="${icon}" class="w-4 h-4 flex-shrink-0"></i><span>${message}</span>`;
-      
       container.appendChild(toast);
       lucide.createIcons();
 
-      // Animate in
-      requestAnimationFrame(() => {
-        toast.classList.remove('translate-y-2', 'opacity-0');
-      });
-
-      // Auto dismiss
+      requestAnimationFrame(() => toast.classList.remove('translate-y-2', 'opacity-0'));
       setTimeout(() => {
         toast.classList.add('opacity-0', '-translate-y-2');
         setTimeout(() => toast.remove(), 300);
@@ -696,112 +658,97 @@
     }
 
     // ===================================================
-    // QR PARSER ENGINE (URL Params / JSON / Raw String)
+    // VALIDASI PARSING & KETAT (ANTI ASAL-ASALAN)
     // ===================================================
     function parseVoucherPayload(rawText) {
       if (!rawText || typeof rawText !== 'string') return null;
       const trimmed = rawText.trim();
+      let code = "";
 
-      // Case 1: URL Query parameters
       if (trimmed.includes('?') || trimmed.includes('&') || trimmed.includes('code=')) {
         try {
           const queryString = trimmed.includes('?') ? trimmed.split('?')[1] : trimmed;
           const params = new URLSearchParams(queryString);
-          const code = params.get('code') || params.get('c') || params.get('id');
-          if (code) {
-            return {
-              code: code.trim().toUpperCase(),
-              name: (params.get('name') || params.get('nama') || params.get('n') || 'Tamu Undangan').trim(),
-              table: (params.get('table') || params.get('meja') || params.get('t') || 'Umum').trim()
-            };
-          }
-        } catch (e) {
-          console.warn("URL parameter parser exception:", e);
-        }
-      }
-
-      // Case 2: Structured JSON payload
-      if (trimmed.startsWith('{') && trimmed.endsWith('}')) {
+          code = params.get('code') || params.get('c') || params.get('id') || "";
+        } catch (e) {}
+      } else if (trimmed.startsWith('{') && trimmed.endsWith('}')) {
         try {
           const obj = JSON.parse(trimmed);
-          const code = obj.code || obj.id || obj.kupon;
-          if (code) {
-            return {
-              code: String(code).trim().toUpperCase(),
-              name: String(obj.name || obj.nama || 'Tamu Undangan').trim(),
-              table: String(obj.table || obj.meja || 'Umum').trim()
-            };
-          }
-        } catch (e) {
-          console.warn("JSON payload parse exception:", e);
-        }
+          code = obj.code || obj.id || "";
+        } catch (e) {}
+      } else {
+        code = trimmed.split(',')[0].trim();
       }
 
-      // Case 3: Comma separated simple string: "KUPON-001, Budi Santoso, Meja VIP"
-      if (trimmed.includes(',')) {
-        const parts = trimmed.split(',').map(p => p.trim());
+      code = code.toUpperCase();
+
+      // Cek apakah kode ada di Master Database
+      const masterList = getRegisteredCoupons();
+      const foundInMaster = masterList.find(c => c.code === code);
+
+      if (foundInMaster) {
         return {
-          code: parts[0].toUpperCase(),
-          name: parts[1] || 'Tamu Undangan',
-          table: parts[2] || 'Umum'
+          code: foundInMaster.code,
+          name: foundInMaster.name,
+          category: foundInMaster.category || (foundInMaster.code.startsWith('F-') ? 'KERABAT' : 'UMUM'),
+          table: foundInMaster.table || 'Umum',
+          isRegistered: true
         };
       }
 
-      // Case 4: Plain Code String
+      // Jika kupon belum di-generate di generator
       return {
-        code: trimmed.toUpperCase(),
-        name: trimmed,
-        table: 'Umum'
+        code: code,
+        name: 'Tidak Dikenal',
+        category: 'TIDAK TERDAFTAR',
+        table: '-',
+        isRegistered: false
       };
     }
 
-    // ===================================================
-    // VOUCHER REDEMPTION VERIFICATION LOGIC
-    // ===================================================
     function processScannedVoucher(rawText) {
       if (scanCooldown) return;
       scanCooldown = true;
-      setTimeout(() => { scanCooldown = false; }, 1800);
+      setTimeout(() => { scanCooldown = false; }, 1600);
 
       const parsed = parseVoucherPayload(rawText);
-      if (!parsed || !parsed.code) {
-        showValidationResult('invalid', null, 'QR Code kosong atau format tidak didukung.');
+
+      // KEAMANAN 1: Tolak jika tidak terdaftar di sistem master
+      if (!parsed || !parsed.isRegistered) {
+        playSoundDuplicate();
+        showValidationResult('invalid', null, `Kode "${rawText}" tidak terdaftar di Database Kupon Sah!`);
+        showToast("Akses Ditolak: Kupon tidak terdaftar!", "error");
         return;
       }
 
-      const list = getVouchersData();
-      const existing = list.find(item => item.code === parsed.code);
+      // KEAMANAN 2: Cek apakah sudah pernah ditukarkan (Double-Scan Prevention)
+      const redeemedList = getRedeemedList();
+      const existing = redeemedList.find(item => item.code === parsed.code);
 
       if (existing) {
-        // DUPLICATE DETECTED!
         playSoundDuplicate();
         showValidationResult('duplicate', existing);
-        showToast(`Peringatan: Kupon ${existing.code} sudah ditukarkan!`, "warning");
+        showToast(`Kupon ${existing.code} sudah pernah ditukar!`, "warning");
       } else {
-        // VALID FIRST-TIME REDEMPTION!
         const now = new Date();
-        const formattedDate = now.toLocaleDateString('id-ID', {
-          day: '2-digit', month: 'short', year: 'numeric'
-        });
-        const formattedTime = now.toLocaleTimeString('id-ID', {
-          hour: '2-digit', minute: '2-digit', second: '2-digit'
-        });
-
         const newEntry = {
           code: parsed.code,
           name: parsed.name,
+          category: parsed.category,
           table: parsed.table,
-          date: formattedDate,
-          time: formattedTime,
-          timestamp: now.toISOString(),
-          status: 'Redeemed'
+          date: now.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }),
+          time: now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
+          timestamp: now.toISOString()
         };
 
-        list.unshift(newEntry);
-        saveVouchersData(list);
+        redeemedList.unshift(newEntry);
+        saveRedeemedList(redeemedList);
 
         playSoundSuccess();
-        triggerConfetti();
+        try {
+          confetti({ particleCount: 50, spread: 60, origin: { y: 0.6 } });
+        } catch (e) {}
+
         showValidationResult('success', newEntry);
         showToast(`Kupon ${newEntry.code} (${newEntry.name}) berhasil diverifikasi!`, "success");
         updateDashboardMetrics();
@@ -809,7 +756,6 @@
       }
     }
 
-    // Update Result UI Card state
     function showValidationResult(state, data = null, customMessage = '') {
       const stateIdle = document.getElementById('statusStateIdle');
       const stateSuccess = document.getElementById('statusStateSuccess');
@@ -821,13 +767,16 @@
       stateSuccess.classList.add('hidden');
       stateDuplicate.classList.add('hidden');
       stateInvalid.classList.add('hidden');
-
       resultCard.classList.remove('border-emerald-500/50', 'border-rose-500/50', 'border-amber-500/50');
 
       if (state === 'success') {
         stateSuccess.classList.remove('hidden');
         document.getElementById('resGuestName').textContent = data.name;
         document.getElementById('resVoucherCode').textContent = data.code;
+        document.getElementById('resCategoryBadge').textContent = data.category;
+        document.getElementById('resCategoryBadge').className = data.category === 'KERABAT' 
+          ? 'text-[10px] font-bold px-2 py-0.5 rounded bg-rose-900/60 text-rose-300 border border-rose-500/40'
+          : 'text-[10px] font-bold px-2 py-0.5 rounded bg-amber-900/60 text-amber-300 border border-amber-500/40';
         document.getElementById('resTable').textContent = data.table || '-';
         document.getElementById('resTimestamp').textContent = `${data.date} • ${data.time}`;
         resultCard.classList.add('border-emerald-500/50');
@@ -839,7 +788,7 @@
         resultCard.classList.add('border-rose-500/50');
       } else if (state === 'invalid') {
         stateInvalid.classList.remove('hidden');
-        if (customMessage) document.getElementById('invalidReason').textContent = customMessage;
+        document.getElementById('invalidReason').textContent = customMessage;
         resultCard.classList.add('border-amber-500/50');
       } else {
         stateIdle.classList.remove('hidden');
@@ -847,22 +796,8 @@
       lucide.createIcons();
     }
 
-    // Confetti animation
-    function triggerConfetti() {
-      try {
-        confetti({
-          particleCount: 50,
-          spread: 60,
-          origin: { y: 0.6 },
-          colors: ['#e11d48', '#f59e0b', '#10b981', '#ffffff']
-        });
-      } catch (e) {
-        // Fallback
-      }
-    }
-
     // ===================================================
-    // CAMERA / HTML5-QRCODE INTEGRATION
+    // KAMERA BUJUR SANGKAR UNTUK IPHONE / SMARTPHONE
     // ===================================================
     async function startScanner() {
       try {
@@ -871,107 +806,51 @@
         }
 
         const config = {
-  fps: 20,
-  // Di iOS/Safari, atur qrbox bujur sangkar simetris
-  qrbox: (viewWidth, viewHeight) => {
-    const minEdge = Math.min(viewWidth, viewHeight);
-    const edge = Math.max(180, Math.floor(minEdge * 0.7));
-    return { width: edge, height: edge };
-  },
-  aspectRatio: 1.0, // Wajib 1.0 agar feed video iOS tidak meregang menjadi persegi panjang
-  experimentalFeatures: {
-    useBarCodeDetectorIfSupported: true
-  }
-};
+          fps: 20,
+          qrbox: (viewWidth, viewHeight) => {
+            const minEdge = Math.min(viewWidth, viewHeight);
+            const edge = Math.max(180, Math.floor(minEdge * 0.72));
+            return { width: edge, height: edge };
+          },
+          aspectRatio: 1.0
+        };
 
         updateCameraUIState('starting');
 
         await html5QrCode.start(
           { facingMode: currentFacingMode },
           config,
-          (decodedText) => {
-            processScannedVoucher(decodedText);
-          },
-          (errorMessage) => {
-            // Frame parse error
-          }
+          (decodedText) => processScannedVoucher(decodedText),
+          () => {}
         );
 
         isScannerRunning = true;
         updateCameraUIState('running');
-        checkTorchCapability();
-
       } catch (err) {
         console.error("Camera Init Error:", err);
         isScannerRunning = false;
         updateCameraUIState('error');
-        showToast("Izin kamera ditolak atau kamera tidak ditemukan.", "error");
+        showToast("Izin kamera ditolak atau tidak ditemukan.", "error");
       }
     }
 
     async function stopScanner() {
       if (html5QrCode && isScannerRunning) {
-        try {
-          await html5QrCode.stop();
-        } catch (e) {
-          console.warn("Stop scanner error:", e);
-        }
+        try { await html5QrCode.stop(); } catch (e) {}
         isScannerRunning = false;
         updateCameraUIState('stopped');
       }
     }
 
     function toggleScanner() {
-      if (isScannerRunning) {
-        stopScanner();
-      } else {
-        startScanner();
-      }
+      isScannerRunning ? stopScanner() : startScanner();
     }
 
     async function toggleCameraFacing() {
       currentFacingMode = (currentFacingMode === "environment") ? "user" : "environment";
-      showToast(`Beralih ke kamera ${currentFacingMode === 'environment' ? 'belakang' : 'depan'}...`);
       if (isScannerRunning) {
         await stopScanner();
         await startScanner();
-      }
-    }
-
-    async function checkTorchCapability() {
-      const btnTorch = document.getElementById('btnTorch');
-      try {
-        if (html5QrCode && html5QrCode.getRunningTrackCapabilities) {
-          const caps = html5QrCode.getRunningTrackCapabilities();
-          if (caps && caps.torch) {
-            hasTorch = true;
-            btnTorch.classList.remove('hidden');
-            return;
-          }
-        }
-      } catch (e) {
-        // Torch not supported
-      }
-      btnTorch.classList.add('hidden');
-    }
-
-    async function toggleTorch() {
-      if (!isScannerRunning || !hasTorch) return;
-      try {
-        isTorchOn = !isTorchOn;
-        await html5QrCode.applyVideoConstraints({
-          advanced: [{ torch: isTorchOn }]
-        });
-        const btnTorch = document.getElementById('btnTorch');
-        if (isTorchOn) {
-          btnTorch.classList.add('bg-amber-500', 'text-slate-950');
-          btnTorch.classList.remove('bg-slate-800/80', 'text-slate-300');
-        } else {
-          btnTorch.classList.remove('bg-amber-500', 'text-slate-950');
-          btnTorch.classList.add('bg-slate-800/80', 'text-slate-300');
-        }
-      } catch (e) {
-        console.warn("Torch toggle error:", e);
       }
     }
 
@@ -1002,13 +881,12 @@
       }
     }
 
-    // Manual Form Submission
     function handleManualSubmit(e) {
       e.preventDefault();
       const input = document.getElementById('manualCodeInput');
       const val = input.value.trim();
       if (!val) {
-        showToast("Masukkan kode atau nama kupon terlebih dahulu", "warning");
+        showToast("Masukkan kode kupon terlebih dahulu!", "warning");
         return;
       }
       processScannedVoucher(val);
@@ -1016,35 +894,162 @@
     }
 
     // ===================================================
-    // DASHBOARD & HISTORY AUDIT LOG
+    // GENERATOR KUPON & PEMBAHARUAN PERSISTEN
     // ===================================================
-    function updateDashboardMetrics() {
-      const list = getVouchersData();
-      document.getElementById('statTotalRedeemed').textContent = list.length;
-      
-      if (list.length > 0) {
-        const last = list[0];
-        document.getElementById('statLastTime').textContent = `${last.time}`;
-        document.getElementById('statLastName').textContent = `${last.name} (${last.code})`;
-      } else {
-        document.getElementById('statLastTime').textContent = '-';
-        document.getElementById('statLastName').textContent = 'Belum ada aktivitas';
+    function handleGenerateBatch() {
+      const text = document.getElementById('genGuestList').value.trim();
+      if (!text) {
+        showToast("Masukkan minimal 1 nama tamu!", "warning");
+        return;
+      }
+
+      const catType = document.getElementById('genCategory').value; // 'G' atau 'F'
+      const prefix = `${catType}-`;
+      const catLabel = catType === 'F' ? 'KERABAT' : 'UMUM';
+
+      const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+      let masterList = getRegisteredCoupons();
+
+      // Cari nomor urut terakhir khusus prefix ini agar tidak duplikat
+      const existingWithPrefix = masterList.filter(c => c.code.startsWith(prefix));
+      let currentNumber = existingWithPrefix.length + 1;
+
+      let addedCount = 0;
+      lines.forEach(line => {
+        const parts = line.split(',');
+        const guestName = parts[0].trim();
+        const guestTable = parts[1] ? parts[1].trim() : 'Umum';
+        const paddedNum = String(currentNumber).padStart(3, '0');
+        const code = `${prefix}${paddedNum}`;
+
+        masterList.push({
+          code: code,
+          name: guestName,
+          category: catLabel,
+          table: guestTable,
+          createdDate: new Date().toLocaleDateString('id-ID')
+        });
+
+        currentNumber++;
+        addedCount++;
+      });
+
+      // Simpan ke localStorage master
+      saveRegisteredCoupons(masterList);
+      document.getElementById('genGuestList').value = '';
+
+      updateDashboardMetrics();
+      renderAllCardsForPrint();
+      showToast(`Berhasil menambahkan ${addedCount} kupon (${catLabel}) ke database!`, "success");
+    }
+
+    // Render Semua Kupon ke Area Cetak (12 Kupon per Halaman A4)
+    function renderAllCardsForPrint() {
+      const masterList = getRegisteredCoupons();
+      const container = document.getElementById('cardsGridContainer');
+      const eventTitle = document.getElementById('genEventTitle').value.trim() || 'Wedding Souvenir Voucher';
+      container.innerHTML = '';
+
+      if (masterList.length === 0) {
+        container.innerHTML = `
+          <div class="col-span-full py-12 text-center text-slate-500 text-xs">
+            Belum ada kupon yang dibuat. Silakan tambahkan daftar tamu di atas.
+          </div>
+        `;
+        return;
+      }
+
+      masterList.forEach((c, index) => {
+        const card = document.createElement('div');
+        // Layout pas 12 kupon per lembar A4
+        card.className = "ticket-card bg-slate-900 border border-slate-700 rounded-xl p-2.5 flex flex-col justify-between shadow relative";
+        
+        const qrid = `print_qr_${index}`;
+        const isFamily = c.category === 'KERABAT';
+
+        card.innerHTML = `
+          <div>
+            <!-- Header Kupon -->
+            <div class="flex items-center justify-between pb-1 border-b border-dashed border-slate-700 print:border-slate-300">
+              <span class="text-[7.5px] uppercase tracking-wider font-extrabold ${isFamily ? 'text-rose-400 print:text-rose-700' : 'text-amber-400 print:text-amber-700'}">
+                ${isFamily ? '★ SOUVENIR KERABAT' : 'SOUVENIR VOUCHER'}
+              </span>
+              <span class="text-[8px] font-mono font-bold text-slate-400 print:text-slate-600">${c.table}</span>
+            </div>
+
+            <!-- Body: QR & Identitas -->
+            <div class="flex items-center gap-2 my-1">
+              <div class="p-1 bg-white rounded-md shadow-sm border border-slate-200 flex-shrink-0 flex items-center justify-center">
+                <div id="${qrid}"></div>
+              </div>
+              <div class="flex-1 min-w-0">
+                <h4 class="text-[11px] font-bold text-white print:text-slate-900 truncate font-serif leading-tight">${c.name}</h4>
+                <div class="mt-1">
+                  <span class="font-mono text-[9px] font-extrabold ${isFamily ? 'text-rose-300 print:text-rose-800 bg-rose-950/60 print:bg-rose-50 border-rose-500/40' : 'text-amber-300 print:text-amber-800 bg-amber-950/60 print:bg-amber-50 border-amber-500/40'} px-1.5 py-0.5 rounded border inline-block tracking-wider">
+                    ${c.code}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Footer Kupon -->
+          <div class="pt-0.5 border-t border-dashed border-slate-800 print:border-slate-300 text-center">
+            <p class="text-[7.5px] text-slate-400 print:text-slate-600 leading-none">
+              ${eventTitle} • Tunjukkan saat penukaran
+            </p>
+          </div>
+        `;
+
+        container.appendChild(card);
+
+        // Render QR
+        new QRCode(document.getElementById(qrid), {
+          text: `?code=${encodeURIComponent(c.code)}&name=${encodeURIComponent(c.name)}`,
+          width: 58,
+          height: 58,
+          colorDark: "#000000",
+          colorLight: "#ffffff",
+          correctLevel: QRCode.CorrectLevel.M
+        });
+      });
+
+      lucide.createIcons();
+    }
+
+    function confirmClearMasterCoupons() {
+      const masterList = getRegisteredCoupons();
+      if (masterList.length === 0) return;
+      if (confirm("Peringatan! Ini akan MENGHAPUS SEMUA data kupon terdaftar dari sistem. Lanjutkan?")) {
+        localStorage.removeItem(STORAGE_KEY_REGISTERED);
+        updateDashboardMetrics();
+        renderAllCardsForPrint();
+        showToast("Database master kupon berhasil dikosongkan.");
       }
     }
 
+    // ===================================================
+    // DASHBOARD & AUDIT LOG
+    // ===================================================
+    function updateDashboardMetrics() {
+      const redeemed = getRedeemedList();
+      const registered = getRegisteredCoupons();
+
+      document.getElementById('statTotalRedeemed').textContent = redeemed.length;
+      document.getElementById('statRegisteredTotal').textContent = registered.length;
+      document.getElementById('registeredCounterBadge').textContent = `${registered.length} Kupon`;
+    }
+
     function renderHistoryTable() {
-      const list = getVouchersData();
+      const list = getRedeemedList();
       const tbody = document.getElementById('historyTableBody');
       const emptyState = document.getElementById('emptyHistoryState');
       const query = (document.getElementById('searchInput').value || '').toLowerCase().trim();
 
-      const filtered = list.filter(item => {
-        return (
-          item.code.toLowerCase().includes(query) ||
-          item.name.toLowerCase().includes(query) ||
-          (item.table && item.table.toLowerCase().includes(query))
-        );
-      });
+      const filtered = list.filter(item => 
+        item.code.toLowerCase().includes(query) ||
+        item.name.toLowerCase().includes(query)
+      );
 
       tbody.innerHTML = '';
 
@@ -1058,11 +1063,15 @@
           tr.innerHTML = `
             <td class="px-4 py-3 font-mono text-slate-500">${filtered.length - index}</td>
             <td class="px-4 py-3 font-mono font-bold text-rose-300">${item.code}</td>
+            <td class="px-4 py-3">
+              <span class="text-[10px] font-semibold px-2 py-0.5 rounded ${item.category === 'KERABAT' ? 'bg-rose-950 text-rose-300 border border-rose-800' : 'bg-amber-950 text-amber-300 border border-amber-800'}">
+                ${item.category || 'UMUM'}
+              </span>
+            </td>
             <td class="px-4 py-3 font-medium text-slate-100">${item.name}</td>
-            <td class="px-4 py-3 text-slate-400">${item.table || '-'}</td>
             <td class="px-4 py-3 text-slate-400">${item.date} <span class="text-slate-200 font-semibold">${item.time}</span></td>
             <td class="px-4 py-3 text-right">
-              <button onclick="deleteSingleRecord('${item.code}')" title="Hapus riwayat kupon ini" class="p-1 rounded-lg hover:bg-rose-950 text-slate-500 hover:text-rose-400 transition">
+              <button onclick="deleteSingleRedemption('${item.code}')" class="p-1 rounded-lg hover:bg-rose-950 text-slate-500 hover:text-rose-400 transition" title="Hapus catatan">
                 <i data-lucide="trash" class="w-3.5 h-3.5"></i>
               </button>
             </td>
@@ -1073,65 +1082,37 @@
       lucide.createIcons();
     }
 
-    function deleteSingleRecord(code) {
-      let list = getVouchersData();
+    function deleteSingleRedemption(code) {
+      let list = getRedeemedList();
       list = list.filter(item => item.code !== code);
-      saveVouchersData(list);
+      saveRedeemedList(list);
       updateDashboardMetrics();
       renderHistoryTable();
-      showToast(`Catatan kupon ${code} dihapus.`, "info");
+      showToast(`Catatan ${code} dihapus.`);
     }
 
-    // ===================================================
-    // EXPORT & RESET DATA MODAL
-    // ===================================================
     function exportToCSV() {
-      const list = getVouchersData();
+      const list = getRedeemedList();
       if (list.length === 0) {
-        showToast("Tidak ada data riwayat untuk diekspor.", "warning");
+        showToast("Belum ada riwayat penukaran untuk diekspor.", "warning");
         return;
       }
 
-      const headers = ["No", "Kode Kupon", "Nama Tamu", "Meja/Keterangan", "Tanggal", "Jam", "Status"];
-      const rows = list.map((item, idx) => [
-        idx + 1,
-        `"${item.code}"`,
-        `"${item.name.replace(/"/g, '""')}"`,
-        `"${(item.table || '').replace(/"/g, '""')}"`,
-        `"${item.date}"`,
-        `"${item.time}"`,
-        `"${item.status || 'Redeemed'}"`
-      ]);
+      let csv = "No,Kode Kupon,Kategori,Nama Tamu,Tanggal,Jam\n";
+      list.forEach((item, idx) => {
+        csv += `${idx + 1},"${item.code}","${item.category || 'UMUM'}","${item.name}","${item.date}","${item.time}"\n`;
+      });
 
-      const csvContent = "data:text/csv;charset=utf-8,\uFEFF" + 
-        [headers.join(","), ...rows.map(e => e.join(","))].join("\n");
-
-      const encodedUri = encodeURI(csvContent);
-      const link = document.createElement("a");
-      link.setAttribute("href", encodedUri);
-      link.setAttribute("download", `laporan_penukaran_suvenir_${Date.now()}.csv`);
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      showToast("Data riwayat berhasil diekspor ke format CSV!", "success");
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `Laporan_Suvenir_${Date.now()}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
     }
 
-    function exportToJSON() {
-      const list = getVouchersData();
-      if (list.length === 0) {
-        showToast("Tidak ada data untuk diekspor.", "warning");
-        return;
-      }
-      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(list, null, 2));
-      const dlAnchor = document.createElement('a');
-      dlAnchor.setAttribute("href", dataStr);
-      dlAnchor.setAttribute("download", `backup_kupon_suvenir_${Date.now()}.json`);
-      dlAnchor.click();
-      dlAnchor.remove();
-      showToast("Data riwayat berhasil diekspor ke JSON!", "success");
-    }
-
-    // Double Confirmation Reset Modal
+    // Modal Reset Riwayat
     function openResetModal() {
       const modal = document.getElementById('resetModal');
       const input = document.getElementById('resetConfirmInput');
@@ -1139,7 +1120,6 @@
       input.value = '';
       btn.disabled = true;
       modal.classList.remove('hidden');
-
       input.oninput = () => {
         btn.disabled = (input.value.trim().toUpperCase() !== 'RESET');
       };
@@ -1150,162 +1130,53 @@
     }
 
     function executeResetData() {
-      localStorage.removeItem(STORAGE_KEY);
+      localStorage.removeItem(STORAGE_KEY_REDEEMED);
       closeResetModal();
       updateDashboardMetrics();
       renderHistoryTable();
       showValidationResult('idle');
-      showToast("Semua riwayat kupon telah dibersihkan secara permanen.", "success");
+      showToast("Semua riwayat penukaran berhasil dibersihkan.");
     }
 
-    // ===================================================
-    // TAB NAVIGATION
-    // ===================================================
+    // Tab Switch
     function switchTab(target) {
-      const scannerSec = document.getElementById('scannerSection');
-      const generatorSec = document.getElementById('generatorSection');
-      const tabBtnScanner = document.getElementById('tabBtnScanner');
-      const tabBtnGenerator = document.getElementById('tabBtnGenerator');
+      const isScanner = target === 'scanner';
+      document.getElementById('scannerSection').classList.toggle('hidden', !isScanner);
+      document.getElementById('generatorSection').classList.toggle('hidden', isScanner);
 
-      if (target === 'scanner') {
-        scannerSec.classList.remove('hidden');
-        generatorSec.classList.add('hidden');
+      const btnScan = document.getElementById('tabBtnScanner');
+      const btnGen = document.getElementById('tabBtnGenerator');
 
-        tabBtnScanner.className = 'flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 bg-rose-600 text-white shadow-md shadow-rose-900/50';
-        tabBtnGenerator.className = 'flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-slate-200 transition-all duration-200';
+      if (isScanner) {
+        btnScan.className = 'flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold bg-rose-600 text-white shadow-md shadow-rose-900/50';
+        btnGen.className = 'flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-slate-200';
       } else {
-        scannerSec.classList.add('hidden');
-        generatorSec.classList.remove('hidden');
-
-        // Stop camera while in generator to save battery
-        if (isScannerRunning) {
-          stopScanner();
-        }
-
-        tabBtnGenerator.className = 'flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 bg-amber-500 text-slate-950 shadow-md shadow-amber-950/50';
-        tabBtnScanner.className = 'flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-slate-200 transition-all duration-200';
+        btnGen.className = 'flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold bg-amber-500 text-slate-950 shadow-md shadow-amber-950/50';
+        btnScan.className = 'flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-slate-200';
+        if (isScannerRunning) stopScanner();
+        renderAllCardsForPrint();
       }
       lucide.createIcons();
     }
 
-    // ===================================================
-    // BATCH QR CODE GENERATOR FOR PRINTING
-    // ===================================================
     function loadSampleGuests() {
-      const sample = [
-        "Bpk. & Ibu Bambang Sutrisno, Meja VIP 01",
-        "Ahmad Fauzi & Pasangan, Meja Mawar 02",
-        "dr. Ratna Kartika, Sp.A, Meja Anggrek 04",
-        "Kevin Sanjaya & Rekan, Meja VIP 03",
-        "Ibu Sri Wahyuni, Meja Melati 05",
-        "Hendy Pratama, Meja Tulip 01"
+      const samples = [
+        "Bpk. Ahmad Subagyo, Meja VIP 01",
+        "Siti Rahmawati, Meja Mawar 02",
+        "Keluarga Hendra Pratama, VIP Kerabat",
+        "drg. Maya Indah, Meja Melati 04",
+        "Om Joko & Tante Rina, Keluarga Inti",
+        "Budi Santoso & Partner, Meja Tulip 03"
       ].join('\n');
-      document.getElementById('genGuestList').value = sample;
+      document.getElementById('genGuestList').value = samples;
     }
 
-    function clearBatchCards() {
-      document.getElementById('cardsGridContainer').innerHTML = '';
-      showToast("Tampilan kartu kupon dibersihkan.");
-    }
-
-    function generateBatchCards() {
-      const text = document.getElementById('genGuestList').value.trim();
-      if (!text) {
-        showToast("Masukkan minimal 1 nama tamu pada kolom teks!", "warning");
-        return;
-      }
-
-      const prefix = document.getElementById('genPrefix').value.trim() || 'SOUV-';
-      const startIndex = parseInt(document.getElementById('genStartIndex').value) || 1;
-      const eventTitle = document.getElementById('genEventTitle').value.trim() || 'Wedding Souvenir Voucher';
-
-      const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
-      const container = document.getElementById('cardsGridContainer');
-      container.innerHTML = '';
-
-      lines.forEach((line, index) => {
-        const parts = line.split(',');
-        const guestName = parts[0].trim();
-        const guestTable = parts[1] ? parts[1].trim() : 'Umum';
-        const paddedNum = String(startIndex + index).padStart(3, '0');
-        const voucherCode = `${prefix}${paddedNum}`;
-
-        const qrPayload = `?code=${encodeURIComponent(voucherCode)}&name=${encodeURIComponent(guestName)}&table=${encodeURIComponent(guestTable)}`;
-
-        const card = document.createElement('div');
-        card.className = "ticket-card bg-slate-900 border border-amber-500/40 rounded-2xl p-4 flex flex-col justify-between shadow-lg relative overflow-hidden print:p-4 print:m-1 print:border-amber-600";
-        
-        const qrid = `qrcode_card_${index}`;
-
-        card.innerHTML = `
-          <div class="relative">
-            <div class="text-center pb-2 mb-2.5 border-b border-dashed border-amber-500/30 print:border-slate-300">
-              <span class="text-[9px] uppercase tracking-[0.2em] font-semibold text-rose-400 print:text-rose-700 block">Wedding Souvenir Voucher</span>
-              <h3 class="text-sm font-serif font-bold text-amber-200 print:text-slate-900 tracking-wide mt-0.5">${eventTitle}</h3>
-            </div>
-            
-            <div class="flex gap-3.5 items-center my-2">
-              <div class="p-1.5 bg-white rounded-xl shadow-md border border-slate-200 flex-shrink-0 flex items-center justify-center">
-                <div id="${qrid}"></div>
-              </div>
-              <div class="flex-1 min-w-0">
-                <span class="text-[9px] uppercase tracking-wider text-slate-400 print:text-slate-500 block font-medium">Spesial Untuk:</span>
-                <h4 class="text-sm font-bold text-white print:text-slate-900 truncate font-serif leading-tight mt-0.5">${guestName}</h4>
-                <div class="flex items-center gap-1.5 mt-1.5">
-                  <span class="text-[10px] px-2 py-0.5 rounded bg-slate-800 text-slate-300 print:bg-slate-100 print:text-slate-700 border border-slate-700 print:border-slate-300 font-medium">
-                    ${guestTable}
-                  </span>
-                </div>
-                <div class="mt-2">
-                  <span class="font-mono text-[11px] font-extrabold text-amber-300 print:text-amber-800 bg-amber-950/60 print:bg-amber-50 px-2 py-0.5 rounded border border-amber-500/40 print:border-amber-300 inline-block tracking-wider">
-                    ${voucherCode}
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="pt-2 mt-2 border-t border-dashed border-slate-800 print:border-slate-200 text-center">
-            <p class="text-[9px] text-slate-400 print:text-slate-600 italic">
-              "Terima kasih atas kehadiran serta doa restu Anda."
-            </p>
-            <p class="text-[8px] text-rose-400/90 print:text-rose-600 font-semibold uppercase tracking-wider mt-0.5">
-              Harap tunjukkan kupon ini kepada panitia suvenir
-            </p>
-          </div>
-        `;
-
-        container.appendChild(card);
-
-        // Render QR Code inside ticket
-        new QRCode(document.getElementById(qrid), {
-          text: qrPayload,
-          width: 82,
-          height: 82,
-          colorDark: "#000000",
-          colorLight: "#ffffff",
-          correctLevel: QRCode.CorrectLevel.M
-        });
-      });
-
-      showToast(`Berhasil merender ${lines.length} kupon suvenir!`, "success");
-      lucide.createIcons();
-    }
-
-    // ===================================================
-    // APPLICATION INITIALIZATION
-    // ===================================================
+    // Init
     window.addEventListener('DOMContentLoaded', () => {
       lucide.createIcons();
       updateDashboardMetrics();
       renderHistoryTable();
-
-      const manualInput = document.getElementById('manualCodeInput');
-      if (manualInput) {
-        manualInput.addEventListener('keydown', (e) => {
-          if (e.key === 'Enter') handleManualSubmit(e);
-        });
-      }
+      renderAllCardsForPrint();
     });
   </script>
 </body>
