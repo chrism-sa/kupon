@@ -1145,7 +1145,7 @@
         card.innerHTML = `
           <!-- 1. BAGIAN ATAS: JUDUL UTAMA MODERN SERIF & PENGANTAR 1 BARIS -->
           <div class="relative z-10 pt-0.5">
-            <h2 class="font-serif font-bold text-[10.5px] tracking-wider text-navy-950 uppercase leading-tight print:text-navy-950">
+            <h2 class="font-serif font-bold text-[12 px] tracking-wider text-navy-950 uppercase leading-tight print:text-navy-950">
               KARTU PENUKARAN SOUVENIR
             </h2>
             <p class="font-sans text-[5.8px] text-slate-500 print:text-slate-600 mt-0.5 leading-none" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
@@ -1160,7 +1160,7 @@
             </div>
             <!-- Bingkai Kode Voucher Cantik (Badge Desain Mewah) -->
             <div class="mt-1">
-              <span class="font-mono text-[8.5px] font-bold text-navy-900 bg-white/90 px-2.5 py-0.5 rounded-full border border-gold-400/80 inline-block tracking-wider shadow-2xs">
+              <span class="font-mono text-[10 px] font-bold text-navy-900 bg-white/90 px-2.5 py-0.5 rounded-full border border-gold-400/80 inline-block tracking-wider shadow-2xs">
                 ${c.code}
               </span>
             </div>
@@ -1185,8 +1185,8 @@
         // Render QR Code di Tengah
         new QRCode(document.getElementById(qrid), {
           text: qrPayload,
-          width: 66,
-          height: 66,
+          width: 80,
+          height: 80,
           colorDark: "#0b1329", // Warna Navy Blue Gelap Mewah
           colorLight: "#ffffff",
           correctLevel: QRCode.CorrectLevel.M
