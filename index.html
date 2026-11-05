@@ -14,17 +14,9 @@
         extend: {
           colors: {
             brand: {
-              50: '#fdf4f5',
-              100: '#fbe8ea',
               500: '#e11d48',
               600: '#be123c',
               700: '#9f1239',
-              900: '#4c0519',
-            },
-            gold: {
-              400: '#fbbf24',
-              500: '#f59e0b',
-              600: '#d97706'
             }
           },
           fontFamily: {
@@ -36,26 +28,20 @@
     }
   </script>
 
-  <!-- External Libraries -->
-  <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+  <!-- External Libraries: html5-qrcode versi stabil terverifikasi -->
+  <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
 
   <style>
-    /* Custom Scrollbar */
-    ::-webkit-scrollbar { width: 6px; height: 6px; }
-    ::-webkit-scrollbar-track { background: rgba(15, 23, 42, 0.6); }
-    ::-webkit-scrollbar-thumb { background: rgba(225, 29, 72, 0.4); border-radius: 4px; }
-    ::-webkit-scrollbar-thumb:hover { background: rgba(225, 29, 72, 0.8); }
-
-    /* Custom Camera Viewport Styling untuk iPhone / Mobile */
+    /* Viewport Scanner Styling */
     #qr-reader {
       border: none !important;
-      background: transparent !important;
       position: relative;
       width: 100% !important;
       height: 100% !important;
+      background: #000;
     }
     #qr-reader video {
       border-radius: 1rem;
@@ -70,7 +56,7 @@
       display: none !important;
     }
 
-    /* Animasi Laser Kotak Pemindai */
+    /* Animasi Laser Bidikan Scanner */
     @keyframes scan-line-move {
       0% { top: 6%; opacity: 0.8; }
       50% { top: 92%; opacity: 1; }
@@ -78,21 +64,21 @@
     }
     .scanner-laser-line {
       position: absolute;
-      left: 8%;
-      right: 8%;
+      left: 6%;
+      right: 6%;
       height: 3px;
-      background: linear-gradient(90deg, transparent, #f43f5e, #fbbf24, #f43f5e, transparent);
-      box-shadow: 0 0 10px #f43f5e;
-      animation: scan-line-move 2.2s infinite ease-in-out;
+      background: linear-gradient(90deg, transparent, #10b981, #fbbf24, #10b981, transparent);
+      box-shadow: 0 0 10px #10b981;
+      animation: scan-line-move 2s infinite ease-in-out;
       border-radius: 9999px;
     }
 
     /* ======================================================== */
-    /* LAYOUT CETAK A4: SEIMBANG 12 KUPON (3 KOLOM X 4 BARIS)   */
+    /* LAYOUT CETAK A4: GRID 3 KOLOM X 4 BARIS (12 KUPON PRESISI) */
     /* ======================================================== */
     @page {
       size: A4 portrait;
-      margin: 6mm 6mm;
+      margin: 5mm;
     }
 
     @media print {
@@ -123,19 +109,19 @@
       .print-grid-a4 {
         display: grid !important;
         grid-template-columns: repeat(3, 1fr) !important;
-        gap: 3.5mm !important;
+        gap: 3mm !important;
         width: 100% !important;
       }
       .ticket-card {
         page-break-inside: avoid;
         break-inside: avoid;
         background: #ffffff !important;
-        border: 1px solid #94a3b8 !important;
-        border-radius: 6px !important;
+        border: 1px solid #64748b !important;
+        border-radius: 8px !important;
         box-shadow: none !important;
         color: #0f172a !important;
-        height: 64mm !important;
-        padding: 8px 9px !important;
+        height: 66mm !important;
+        padding: 6px 8px !important;
         box-sizing: border-box !important;
         display: flex !important;
         flex-direction: column !important;
@@ -146,7 +132,7 @@
 </head>
 <body class="min-h-full flex flex-col bg-gradient-to-br from-slate-950 via-slate-900 to-rose-950 text-slate-100 antialiased selection:bg-rose-500 selection:text-white">
 
-  <!-- Top App Bar Navigation -->
+  <!-- Header -->
   <header class="sticky top-0 z-40 backdrop-blur-xl bg-slate-950/80 border-b border-rose-500/20 shadow-lg px-4 py-3">
     <div class="max-w-5xl mx-auto flex items-center justify-between">
       <div class="flex items-center gap-3">
@@ -161,7 +147,7 @@
           </h1>
           <p class="text-[11px] text-slate-400 flex items-center gap-1.5">
             <span class="w-2 h-2 rounded-full bg-emerald-500 inline-block animate-pulse"></span>
-            Cross-Device Scanner Ready
+            Verifikasi Kupon Sah
           </p>
         </div>
       </div>
@@ -174,106 +160,103 @@
         </button>
         <button id="tabBtnGenerator" onclick="switchTab('generator')" class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-slate-200 transition-all duration-200">
           <i data-lucide="qr-code" class="w-4 h-4"></i>
-          <span>Generator Kupon</span>
+          <span>Generator & Database</span>
         </button>
       </nav>
     </div>
   </header>
 
-  <!-- Notification Toast Container -->
+  <!-- Notification Toast -->
   <div id="toastContainer" class="fixed top-20 right-4 z-50 flex flex-col gap-2 pointer-events-none max-w-sm w-full px-4"></div>
 
-  <!-- Main Content Area -->
+  <!-- Main Container -->
   <main class="flex-1 max-w-5xl w-full mx-auto p-4 md:p-6 pb-24">
 
     <!-- ========================================== -->
-    <!-- SECTION 1: SCANNER & PANITIA DASHBOARD     -->
+    <!-- SECTION 1: SCANNER & DASHBOARD             -->
     <!-- ========================================== -->
     <section id="scannerSection" class="space-y-6">
 
-      <!-- Metrics KPI Overview -->
-      <div class="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
+      <!-- DASHBOARD STATISTIK -->
+      <div class="grid grid-cols-3 gap-3 md:gap-4">
         <div class="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-3 md:p-4 backdrop-blur-md relative overflow-hidden shadow-sm">
-          <div class="text-[11px] font-medium text-slate-400 uppercase tracking-wider">Total Ditukar</div>
-          <div id="statTotalRedeemed" class="text-xl md:text-3xl font-extrabold text-rose-400 mt-1">0</div>
-          <div class="text-[10px] text-slate-500 mt-0.5">Kupon terverifikasi</div>
-          <div class="absolute -right-2 -bottom-2 text-rose-500/10 pointer-events-none">
-            <i data-lucide="check-circle" class="w-14 h-14"></i>
-          </div>
-        </div>
-
-        <div class="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-3 md:p-4 backdrop-blur-md relative overflow-hidden shadow-sm">
-          <div class="text-[11px] font-medium text-slate-400 uppercase tracking-wider">Terakhir Ditukar</div>
-          <div id="statLastTime" class="text-xs md:text-sm font-semibold text-amber-300 mt-2 truncate">-</div>
-          <div id="statLastName" class="text-[10px] text-slate-400 truncate mt-0.5">Belum ada aktivitas</div>
+          <div class="text-[11px] font-medium text-slate-400 uppercase tracking-wider">Total Kupon</div>
+          <div id="statTotalRegistered" class="text-xl md:text-3xl font-extrabold text-amber-300 mt-1">0</div>
+          <div class="text-[10px] text-slate-500 mt-0.5">Database terdaftar</div>
           <div class="absolute -right-2 -bottom-2 text-amber-500/10 pointer-events-none">
-            <i data-lucide="clock" class="w-14 h-14"></i>
+            <i data-lucide="database" class="w-14 h-14"></i>
           </div>
         </div>
 
-        <div class="col-span-2 md:col-span-1 bg-slate-900/60 border border-slate-800/80 rounded-2xl p-3 md:p-4 backdrop-blur-md relative overflow-hidden shadow-sm">
-          <div class="text-[11px] font-medium text-slate-400 uppercase tracking-wider">Status Kamera</div>
-          <div id="statCameraStatus" class="flex items-center gap-1.5 mt-2">
-            <span class="w-2.5 h-2.5 rounded-full bg-slate-500" id="cameraStatusDot"></span>
-            <span id="cameraStatusText" class="text-xs font-semibold text-slate-300">Siap</span>
+        <div class="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-3 md:p-4 backdrop-blur-md relative overflow-hidden shadow-sm">
+          <div class="text-[11px] font-medium text-slate-400 uppercase tracking-wider">Berhasil Ditukar</div>
+          <div id="statTotalRedeemed" class="text-xl md:text-3xl font-extrabold text-emerald-400 mt-1">0</div>
+          <div class="text-[10px] text-slate-500 mt-0.5">Kupon terambil</div>
+          <div class="absolute -right-2 -bottom-2 text-emerald-500/10 pointer-events-none">
+            <i data-lucide="check-circle-2" class="w-14 h-14"></i>
           </div>
-          <div class="text-[10px] text-slate-500 mt-0.5">Bidikan bujur sangkar (iPhone ready)</div>
-          <div class="absolute -right-2 -bottom-2 text-indigo-500/10 pointer-events-none">
-            <i data-lucide="camera" class="w-14 h-14"></i>
+        </div>
+
+        <div class="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-3 md:p-4 backdrop-blur-md relative overflow-hidden shadow-sm">
+          <div class="text-[11px] font-medium text-slate-400 uppercase tracking-wider">Sisa Belum Ditukar</div>
+          <div id="statTotalRemaining" class="text-xl md:text-3xl font-extrabold text-rose-400 mt-1">0</div>
+          <div class="text-[10px] text-slate-500 mt-0.5">Menunggu penukaran</div>
+          <div class="absolute -right-2 -bottom-2 text-rose-500/10 pointer-events-none">
+            <i data-lucide="clock" class="w-14 h-14"></i>
           </div>
         </div>
       </div>
 
-      <!-- Live Scan & Result Display Card -->
+      <!-- Kamera & Panel Verifikasi -->
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
         
-        <!-- Left Column: Camera Viewport -->
+        <!-- Left: Kamera Viewport -->
         <div class="lg:col-span-7 bg-slate-900/70 border border-slate-800 rounded-3xl p-4 md:p-5 backdrop-blur-md shadow-xl flex flex-col justify-between">
           <div>
             <div class="flex items-center justify-between mb-3">
               <div class="flex items-center gap-2">
-                <i data-lucide="view" class="w-4 h-4 text-rose-400"></i>
+                <i data-lucide="camera" class="w-4 h-4 text-rose-400"></i>
                 <h2 class="text-sm font-bold text-slate-200">Kamera Pemindai Kupon</h2>
               </div>
               <div class="flex items-center gap-1.5">
-                <button id="btnSwitchCamera" onclick="toggleCameraFacing()" title="Ganti Kamera Depan/Belakang" class="p-2 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-300 border border-slate-700/60 transition active:scale-95">
+                <button onclick="toggleCameraFacing()" title="Ganti Kamera" class="p-2 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-300 border border-slate-700/60 transition active:scale-95">
                   <i data-lucide="refresh-cw" class="w-4 h-4"></i>
                 </button>
-                <button id="btnToggleScanner" onclick="toggleScanner()" class="px-3 py-1.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-semibold shadow-md shadow-rose-900/30 flex items-center gap-1.5 transition active:scale-95">
+                <button id="btnToggleScanner" onclick="toggleScanner()" class="px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold shadow-md shadow-emerald-900/30 flex items-center gap-1.5 transition active:scale-95">
                   <i data-lucide="play" class="w-3.5 h-3.5"></i>
                   <span id="btnScannerText">Mulai Scan</span>
                 </button>
               </div>
             </div>
 
-            <!-- Viewport Container (Kotak Bujur Sangkar untuk iPhone) -->
+            <!-- Viewport Container Bujur Sangkar -->
             <div class="relative w-full aspect-square max-w-[320px] mx-auto bg-black rounded-2xl overflow-hidden border border-slate-800 flex items-center justify-center">
               <div id="qr-reader" class="w-full h-full"></div>
 
-              <!-- Idle Placeholder Overlay -->
+              <!-- Idle Overlay -->
               <div id="scannerPlaceholder" class="absolute inset-0 flex flex-col items-center justify-center p-6 text-center bg-slate-950/90 z-10 transition-opacity">
                 <div class="w-16 h-16 rounded-2xl bg-rose-950/60 border border-rose-500/30 flex items-center justify-center text-rose-400 mb-3">
-                  <i data-lucide="camera" class="w-8 h-8"></i>
+                  <i data-lucide="scan" class="w-8 h-8"></i>
                 </div>
                 <h3 class="text-sm font-semibold text-slate-200">Kamera Tidak Aktif</h3>
-                <p class="text-xs text-slate-400 max-w-xs mt-1">Tekan tombol "Mulai Scan" untuk membaca kupon.</p>
-                <button onclick="startScanner()" class="mt-4 px-4 py-2 bg-gradient-to-r from-rose-600 to-rose-700 hover:from-rose-500 hover:to-rose-600 text-white text-xs font-bold rounded-xl shadow-lg shadow-rose-950 flex items-center gap-2">
-                  <i data-lucide="scan" class="w-4 h-4"></i>
-                  Aktifkan Kamera
+                <p class="text-xs text-slate-400 max-w-xs mt-1">Tekan "Mulai Scan" untuk mengaktifkan pemindai pada smartphone panitia.</p>
+                <button onclick="startScanner()" class="mt-4 px-4 py-2 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-500 hover:to-emerald-600 text-white text-xs font-bold rounded-xl shadow-lg flex items-center gap-2">
+                  <i data-lucide="camera" class="w-4 h-4"></i>
+                  Aktifkan Kamera Sekarang
                 </button>
               </div>
 
-              <!-- Targeting Crosshair Overlay Interaktif -->
+              <!-- Viewfinder Box Interaktif -->
               <div id="scannerOverlay" class="absolute inset-0 pointer-events-none hidden items-center justify-center z-10">
-                <div class="relative w-56 h-56 rounded-2xl border-2 border-rose-500/60 shadow-[0_0_0_9999px_rgba(2,6,23,0.7)] flex items-center justify-center">
-                  <div class="absolute -top-1 -left-1 w-6 h-6 border-t-4 border-l-4 border-rose-400 rounded-tl-lg"></div>
-                  <div class="absolute -top-1 -right-1 w-6 h-6 border-t-4 border-r-4 border-rose-400 rounded-tr-lg"></div>
-                  <div class="absolute -bottom-1 -left-1 w-6 h-6 border-b-4 border-l-4 border-rose-400 rounded-bl-lg"></div>
-                  <div class="absolute -bottom-1 -right-1 w-6 h-6 border-b-4 border-r-4 border-rose-400 rounded-br-lg"></div>
+                <div class="relative w-56 h-56 rounded-2xl border-2 border-emerald-400/60 shadow-[0_0_0_9999px_rgba(2,6,23,0.7)] flex items-center justify-center">
+                  <div class="absolute -top-1 -left-1 w-6 h-6 border-t-4 border-l-4 border-emerald-400 rounded-tl-lg"></div>
+                  <div class="absolute -top-1 -right-1 w-6 h-6 border-t-4 border-r-4 border-emerald-400 rounded-tr-lg"></div>
+                  <div class="absolute -bottom-1 -left-1 w-6 h-6 border-b-4 border-l-4 border-emerald-400 rounded-bl-lg"></div>
+                  <div class="absolute -bottom-1 -right-1 w-6 h-6 border-b-4 border-r-4 border-emerald-400 rounded-br-lg"></div>
                   
                   <div class="scanner-laser-line"></div>
 
-                  <span class="absolute -bottom-7 px-2.5 py-0.5 rounded-full bg-slate-900/90 border border-rose-500/30 text-[10px] font-medium text-rose-300">
+                  <span class="absolute -bottom-7 px-2.5 py-0.5 rounded-full bg-slate-900/90 border border-emerald-500/30 text-[10px] font-medium text-emerald-300">
                     Arahkan QR ke dalam kotak
                   </span>
                 </div>
@@ -284,29 +267,29 @@
           <!-- Input Manual Kode Kupon -->
           <div class="mt-4 pt-3 border-t border-slate-800/80">
             <label class="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-1.5">
-              Input Kode Manual Terverifikasi
+              Input Kode Manual (Cek Database)
             </label>
             <form onsubmit="handleManualSubmit(event)" class="flex gap-2">
-              <input type="text" id="manualCodeInput" placeholder="Contoh: G-7X9K atau F-2M8P" class="flex-1 bg-slate-950/80 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-100 uppercase font-mono placeholder-slate-500 focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500 transition">
+              <input type="text" id="manualCodeInput" placeholder="Contoh: G-7X9K atau F-2M8P" class="flex-1 bg-slate-950/80 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-100 uppercase font-mono placeholder-slate-500 focus:outline-none focus:border-rose-500 transition">
               <button type="submit" class="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold rounded-xl border border-slate-700 transition flex items-center gap-1.5 active:scale-95">
                 <i data-lucide="shield-check" class="w-3.5 h-3.5 text-rose-400"></i>
-                <span>Verifikasi</span>
+                <span>Cek</span>
               </button>
             </form>
           </div>
         </div>
 
-        <!-- Right Column: Verification Result Panel -->
+        <!-- Right: Panel Hasil Validasi -->
         <div class="lg:col-span-5 flex flex-col gap-4">
 
           <div id="validationResultCard" class="flex-1 bg-slate-900/70 border border-slate-800 rounded-3xl p-5 backdrop-blur-md shadow-xl flex flex-col justify-center items-center text-center relative overflow-hidden transition-all duration-300">
-            <!-- Idle State -->
+            <!-- State Idle -->
             <div id="statusStateIdle" class="flex flex-col items-center">
               <div class="w-14 h-14 rounded-2xl bg-slate-800/80 border border-slate-700/80 flex items-center justify-center text-slate-400 mb-3">
                 <i data-lucide="qr-code" class="w-7 h-7"></i>
               </div>
               <h3 class="text-base font-bold text-slate-200">Menunggu Kupon</h3>
-              <p class="text-xs text-slate-400 mt-1 max-w-xs">Arahkan kamera ke QR code undangan atau kupon souvenir tamu.</p>
+              <p class="text-xs text-slate-400 mt-1 max-w-xs">Arahkan kamera ke QR code undangan atau ketikkan kode kupon tamu.</p>
             </div>
 
             <!-- SUCCESS STATE: Kupon Sah & Pertama Ditukar -->
@@ -368,17 +351,17 @@
               </div>
             </div>
 
-            <!-- UNREGISTERED / FRAUD PREVENTION STATE -->
+            <!-- UNREGISTERED STATE: Ditolak jika kode acak asal-asalan -->
             <div id="statusStateInvalid" class="hidden flex-col items-center w-full">
-              <div class="w-14 h-14 rounded-full bg-amber-500/20 border-2 border-amber-500/80 flex items-center justify-center text-amber-400 mb-2">
+              <div class="w-14 h-14 rounded-full bg-rose-500/20 border-2 border-rose-500/80 flex items-center justify-center text-rose-400 mb-2">
                 <i data-lucide="shield-alert" class="w-7 h-7"></i>
               </div>
-              <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-amber-500/20 text-amber-300 border border-amber-500/40 mb-1">
-                Akses Ditolak
+              <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-rose-500/20 text-rose-300 border border-rose-500/40 mb-1">
+                Ditolak
               </span>
               <h3 class="text-sm font-bold text-slate-100 mt-1">Kupon Tidak Terdaftar</h3>
-              <p class="text-xs text-slate-400 mt-1 max-w-xs" id="invalidReason">
-                Format QR tidak memuat token validasi yang sah.
+              <p class="text-xs text-rose-200/90 mt-1 max-w-xs" id="invalidReason">
+                Kode ini tidak ada di database kupon yang sah.
               </p>
             </div>
 
@@ -399,7 +382,7 @@
         </div>
       </div>
 
-      <!-- Audit Log Table & History -->
+      <!-- Riwayat Penukaran -->
       <div class="bg-slate-900/70 border border-slate-800 rounded-3xl p-4 md:p-5 backdrop-blur-md shadow-xl space-y-4">
         <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
           <div>
@@ -422,7 +405,7 @@
             </button>
             <button onclick="openResetModal()" class="px-2.5 py-1.5 bg-rose-950/40 hover:bg-rose-900/60 text-rose-300 border border-rose-900/60 rounded-xl text-xs font-semibold flex items-center gap-1.5 active:scale-95 transition">
               <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
-              <span>Reset</span>
+              <span>Reset Riwayat</span>
             </button>
           </div>
         </div>
@@ -450,9 +433,35 @@
     </section>
 
     <!-- ======================================================== -->
-    <!-- SECTION 2: GENERATOR KUPON & CETAK A4 12 KUPON           -->
+    <!-- SECTION 2: GENERATOR & DATA MASTER (SINKRONISASI HP/LAPTOP) -->
     <!-- ======================================================== -->
     <section id="generatorSection" class="space-y-6 hidden">
+      
+      <!-- Panel Sinkronisasi Database -->
+      <div class="bg-gradient-to-r from-slate-900 to-slate-800 border border-amber-500/40 rounded-3xl p-5 shadow-xl flex flex-col md:flex-row items-center justify-between gap-4">
+        <div>
+          <h3 class="font-bold text-sm text-amber-300 flex items-center gap-2">
+            <i data-lucide="smartphone" class="w-4 h-4"></i>
+            Sinkronisasi Database Antar Laptop & HP Panitia
+          </h3>
+          <p class="text-xs text-slate-300 mt-1">
+            Jika membuat kupon di laptop, unduh cadangan database dan impor di HP panitia agar data kupon dikenali 100%.
+          </p>
+        </div>
+        <div class="flex items-center gap-2 w-full md:w-auto">
+          <button onclick="exportMasterJSON()" class="flex-1 md:flex-initial px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-amber-300 border border-amber-500/30 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition">
+            <i data-lucide="download" class="w-3.5 h-3.5"></i>
+            Ekspor Database
+          </button>
+          <label class="flex-1 md:flex-initial px-3.5 py-2 bg-amber-600 hover:bg-amber-500 text-slate-950 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer transition">
+            <i data-lucide="upload" class="w-3.5 h-3.5"></i>
+            <span>Impor Database</span>
+            <input type="file" id="importFileInput" accept=".json" onchange="importMasterJSON(event)" class="hidden">
+          </label>
+        </div>
+      </div>
+
+      <!-- Generator Kupon -->
       <div class="bg-slate-900/70 border border-slate-800 rounded-3xl p-5 md:p-6 backdrop-blur-md shadow-xl space-y-5">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-800">
           <div>
@@ -460,7 +469,7 @@
               <i data-lucide="layers" class="w-5 h-5 text-amber-400"></i>
               Generator Kupon & Cetak Kartu A4
             </h2>
-            <p class="text-xs text-slate-400">Generate bertahap tanpa khawatir tertimpa. QR memuat verifikasi mandiri.</p>
+            <p class="text-xs text-slate-400">Format kode acak 4 karakter alfanumerik unik (misal: G-7X9K, F-2M8P).</p>
           </div>
           <button onclick="window.print()" class="px-4 py-2 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-bold text-xs rounded-xl shadow-lg shadow-amber-950/50 flex items-center gap-2 transition active:scale-95 no-print">
             <i data-lucide="printer" class="w-4 h-4"></i>
@@ -468,7 +477,6 @@
           </button>
         </div>
 
-        <!-- Konfigurasi Kategori & Judul Acara -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
             <label class="block text-xs font-semibold text-slate-300 mb-1">Kategori Tamu</label>
@@ -476,7 +484,7 @@
               <option value="G">G - Tamu UMUM</option>
               <option value="F">F - KERABAT / Keluarga</option>
             </select>
-            <p class="text-[10px] text-slate-500 mt-1">Hanya tercatat di sistem (tidak dicetak di kupon)</p>
+            <p class="text-[10px] text-slate-500 mt-1">Kategori ini tidak dicetak di kupon fisik (hanya ada di sistem)</p>
           </div>
           <div>
             <label class="block text-xs font-semibold text-slate-300 mb-1">Judul Acara di Kupon</label>
@@ -484,12 +492,12 @@
             <p class="text-[10px] text-slate-500 mt-1">Header cetak kupon</p>
           </div>
           <div>
-            <label class="block text-xs font-semibold text-slate-300 mb-1">Total Kupon Dibuat</label>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Total Kupon di Database</label>
             <div class="bg-slate-950/80 border border-slate-800 rounded-xl px-3 py-2 text-xs text-amber-300 font-mono flex items-center justify-between">
-              <span>Siap Cetak:</span>
+              <span>Siap Cetak / Divalidasi:</span>
               <span id="registeredCounterBadge" class="font-bold text-white">0 Kupon</span>
             </div>
-            <p class="text-[10px] text-slate-500 mt-1">Format kode acak 4 karakter (misal: G-7X9K)</p>
+            <p class="text-[10px] text-slate-500 mt-1">Tersimpan di memori perangkat</p>
           </div>
         </div>
 
@@ -501,7 +509,7 @@
             </button>
           </div>
           <p class="text-[11px] text-slate-400 mb-2">Format: <code class="text-amber-300">Nama Tamu, Meja/Keterangan</code> (atau hanya nama)</p>
-          <textarea id="genGuestList" rows="5" placeholder="Budi Santoso, Meja Melati 01&#10;dr. Ratna, VIP Kerabat" class="w-full bg-slate-950/80 border border-slate-800 rounded-xl p-3 text-xs font-mono text-slate-200 placeholder-slate-600 focus:outline-none focus:border-amber-500"></textarea>
+          <textarea id="genGuestList" rows="5" placeholder="Budi Santoso, Meja Melati 01&#10;dr. Ratna, VIP 02" class="w-full bg-slate-950/80 border border-slate-800 rounded-xl p-3 text-xs font-mono text-slate-200 placeholder-slate-600 focus:outline-none focus:border-amber-500"></textarea>
         </div>
 
         <div class="flex flex-wrap items-center gap-3">
@@ -510,7 +518,7 @@
             Tambah & Generate Kupon
           </button>
           <button onclick="confirmClearMasterCoupons()" class="px-4 py-2.5 bg-rose-950/30 hover:bg-rose-900/50 text-rose-300 text-xs font-semibold rounded-xl border border-rose-900/40 transition">
-            Bersihkan Tampilan Cetak
+            Hapus Semua Master Kupon
           </button>
         </div>
       </div>
@@ -534,11 +542,11 @@
         </div>
         <div>
           <h3 class="text-sm font-bold text-white">Reset Riwayat Saja</h3>
-          <p class="text-[11px] text-slate-400">Menghapus riwayat penukaran kupon di perangkat ini.</p>
+          <p class="text-[11px] text-slate-400">Menghapus riwayat penukaran kupon di perangkat ini tanpa menghapus database kupon.</p>
         </div>
       </div>
       <p class="text-xs text-slate-300">
-        Ketik kata <strong class="text-rose-400">RESET</strong> di bawah ini untuk konfirmasi:
+        Ketik kata <strong class="text-rose-400">RESET</strong> di bawah ini:
       </p>
       <input type="text" id="resetConfirmInput" placeholder="Ketik RESET" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs font-mono text-center tracking-widest text-rose-400 uppercase focus:outline-none focus:border-rose-500">
       <div class="flex items-center gap-2 pt-2">
@@ -552,36 +560,22 @@
     // ===================================================
     // MASTER KEYS & STATE (PERSISTEN DATABASE)
     // ===================================================
-    const STORAGE_KEY_REDEEMED = 'wedding_redeemed_v4';
-    const STORAGE_KEY_REGISTERED = 'wedding_master_coupons_v4';
-    // Salt rahasia untuk menghasilkan checksum verifikasi mandiri antar device
-    const APP_SECRET_SALT = 'WDD_SOUV_2026_SEC';
+    const STORAGE_KEY_REDEEMED = 'wedding_redeemed_v5';
+    const STORAGE_KEY_REGISTERED = 'wedding_master_coupons_v5';
 
     let html5QrCode = null;
     let isScannerRunning = false;
     let currentFacingMode = "environment";
     let scanCooldown = false;
 
-    // Helper Generator Kode Acak Alfanumerik (Maksimal 4 Karakter)
+    // Helper Kode Acak Alfanumerik (Maksimal 4 Karakter)
     function generateRandom4Chars() {
-      // Hilangkan karakter rancu: I, O, 0, 1
       const chars = '23456789ABCDEFGHJKLMNPQRSTUVWXYZ';
       let result = '';
       for (let i = 0; i < 4; i++) {
         result += chars.charAt(Math.floor(Math.random() * chars.length));
       }
       return result;
-    }
-
-    // Helper Checksum Singkat (Memvalidasi keaslian kupon tanpa ketergantungan DB lokal antar perangkat)
-    function generateChecksum(code, name) {
-      const str = `${code}_${name}_${APP_SECRET_SALT}`;
-      let hash = 0;
-      for (let i = 0; i < str.length; i++) {
-        hash = ((hash << 5) - hash) + str.charCodeAt(i);
-        hash |= 0;
-      }
-      return Math.abs(hash).toString(36).substring(0, 4).toUpperCase();
     }
 
     // Ambil Data Riwayat & Master
@@ -682,23 +676,19 @@
     }
 
     // =========================================================================
-    // PARSER & VERIFIKASI KUAT (SELF-VERIFYING PAYLOAD - BISA SCAN DARI MANAPUN)
+    // PARSER & VERIFIKASI KETAT (HANYA KODE YANG ADA DI DATABASE YANG VALID)
     // =========================================================================
     function parseVoucherPayload(rawText) {
       if (!rawText || typeof rawText !== 'string') return null;
       const trimmed = rawText.trim();
-      let code = "", name = "Tamu Undangan", category = "UMUM", table = "Umum", sig = "";
+      let code = "";
 
-      // 1. Baca Format Payload Terpadu
+      // 1. Ekstrak Kode dari URL Params atau Plain Text
       if (trimmed.includes('?') || trimmed.includes('&') || trimmed.includes('code=')) {
         try {
           const queryString = trimmed.includes('?') ? trimmed.split('?')[1] : trimmed;
           const params = new URLSearchParams(queryString);
           code = (params.get('code') || params.get('c') || "").trim().toUpperCase();
-          name = (params.get('name') || params.get('n') || "Tamu Undangan").trim();
-          category = (params.get('cat') || (code.startsWith('F-') ? 'KERABAT' : 'UMUM')).trim();
-          table = (params.get('table') || params.get('t') || "Umum").trim();
-          sig = (params.get('sig') || "").trim().toUpperCase();
         } catch (e) {}
       } else {
         code = trimmed.toUpperCase();
@@ -706,10 +696,9 @@
 
       if (!code) return null;
 
-      // 2. Verifikasi Keaslian Kupon:
-      // A. Cek di Master Data lokal jika ada
+      // 2. KUNCI KEAMANAN: Cari kode di Master Database perangkat
       const masterList = getRegisteredCoupons();
-      const foundInMaster = masterList.find(c => c.code === code);
+      const foundInMaster = masterList.find(c => c.code.toUpperCase() === code);
 
       if (foundInMaster) {
         return {
@@ -721,23 +710,7 @@
         };
       }
 
-      // B. Cross-Device Verification: Jika scan di HP (data dibuat di laptop),
-      // Cek apakah format kode sesuai (G-XXXX atau F-XXXX) dan checksum QR valid
-      const codePattern = /^(G|F)-[2-9A-Z]{4}$/;
-      const isFormatValid = codePattern.test(code);
-      const expectedChecksum = generateChecksum(code, name);
-
-      if (isFormatValid && (sig === expectedChecksum || sig === "")) {
-        return {
-          code: code,
-          name: name,
-          category: code.startsWith('F-') ? 'KERABAT' : 'UMUM',
-          table: table,
-          isValid: true
-        };
-      }
-
-      // Jika kupon palsu / asal ketik
+      // Jika kode acak asal-asalan dan TIDAK ADA di database
       return {
         code: code,
         name: 'Tidak Dikenal',
@@ -754,15 +727,15 @@
 
       const parsed = parseVoucherPayload(rawText);
 
-      // Tolak jika tidak valid / asal ketik
+      // TOLAK jika kode tidak terdaftar di database
       if (!parsed || !parsed.isValid) {
         playSoundDuplicate();
-        showValidationResult('invalid', null, `Kode "${rawText}" tidak sah atau tidak memenuhi standar kupon.`);
-        showToast("Akses Ditolak: Kupon tidak sah!", "error");
+        showValidationResult('invalid', null, `Kode "${rawText}" TIDAK TERDAFTAR di database kupon yang sah.`);
+        showToast("Ditolak: Kupon tidak terdaftar!", "error");
         return;
       }
 
-      // Cegah Dobel Scan (Data disimpan di HP pemeriksa)
+      // PENCEGAHAN DOUBLE SCAN
       const redeemedList = getRedeemedList();
       const existing = redeemedList.find(item => item.code === parsed.code);
 
@@ -791,7 +764,7 @@
         } catch (e) {}
 
         showValidationResult('success', newEntry);
-        showToast(`Kupon ${newEntry.code} (${newEntry.name}) berhasil diverifikasi!`, "success");
+        showToast(`Kupon ${newEntry.code} (${newEntry.name}) diverifikasi!`, "success");
         updateDashboardMetrics();
         renderHistoryTable();
       }
@@ -835,7 +808,7 @@
       } else if (state === 'invalid') {
         stateInvalid.classList.remove('hidden');
         document.getElementById('invalidReason').textContent = customMessage;
-        resultCard.classList.add('border-amber-500/50');
+        resultCard.classList.add('border-rose-500/50');
       } else {
         stateIdle.classList.remove('hidden');
       }
@@ -843,7 +816,7 @@
     }
 
     // ===================================================
-    // KAMERA BUJUR SANGKAR UNTUK IPHONE / SMARTPHONE
+    // KAMERA SCANNER MULTI-DEVICE (ANDROID & IPHONE)
     // ===================================================
     async function startScanner() {
       try {
@@ -852,13 +825,12 @@
         }
 
         const config = {
-          fps: 20,
+          fps: 15,
           qrbox: (viewWidth, viewHeight) => {
             const minEdge = Math.min(viewWidth, viewHeight);
-            const edge = Math.max(180, Math.floor(minEdge * 0.72));
+            const edge = Math.max(180, Math.floor(minEdge * 0.75));
             return { width: edge, height: edge };
-          },
-          aspectRatio: 1.0
+          }
         };
 
         updateCameraUIState('starting');
@@ -876,7 +848,7 @@
         console.error("Camera Init Error:", err);
         isScannerRunning = false;
         updateCameraUIState('error');
-        showToast("Izin kamera ditolak atau tidak ditemukan.", "error");
+        showToast("Gagal mengakses kamera. Izinkan akses kamera browser.", "error");
       }
     }
 
@@ -903,27 +875,23 @@
     function updateCameraUIState(status) {
       const placeholder = document.getElementById('scannerPlaceholder');
       const overlay = document.getElementById('scannerOverlay');
-      const statusDot = document.getElementById('cameraStatusDot');
-      const statusText = document.getElementById('cameraStatusText');
       const btnScannerText = document.getElementById('btnScannerText');
+      const btnToggle = document.getElementById('btnToggleScanner');
 
       if (status === 'running') {
         placeholder.classList.add('hidden');
         overlay.classList.remove('hidden');
         overlay.classList.add('flex');
-        statusDot.className = 'w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse';
-        statusText.textContent = 'Aktif';
         btnScannerText.textContent = 'Hentikan';
+        btnToggle.className = 'px-3.5 py-1.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-semibold shadow-md shadow-rose-900/30 flex items-center gap-1.5 transition active:scale-95';
       } else if (status === 'starting') {
-        statusDot.className = 'w-2.5 h-2.5 rounded-full bg-amber-500 animate-spin';
-        statusText.textContent = 'Menghubungkan...';
+        btnScannerText.textContent = 'Menghubungkan...';
       } else {
         placeholder.classList.remove('hidden');
         overlay.classList.add('hidden');
         overlay.classList.remove('flex');
-        statusDot.className = 'w-2.5 h-2.5 rounded-full bg-slate-500';
-        statusText.textContent = 'Siap';
         btnScannerText.textContent = 'Mulai Scan';
+        btnToggle.className = 'px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold shadow-md shadow-emerald-900/30 flex items-center gap-1.5 transition active:scale-95';
       }
     }
 
@@ -932,7 +900,7 @@
       const input = document.getElementById('manualCodeInput');
       const val = input.value.trim();
       if (!val) {
-        showToast("Masukkan kode kupon terlebih dahulu!", "warning");
+        showToast("Masukkan kode kupon!", "warning");
         return;
       }
       processScannedVoucher(val);
@@ -940,7 +908,7 @@
     }
 
     // ===================================================
-    // GENERATOR KUPON & PEMBAHARUAN PERSISTEN
+    // GENERATOR KUPON & CETAK A4 SEIMBANG
     // ===================================================
     function handleGenerateBatch() {
       const text = document.getElementById('genGuestList').value.trim();
@@ -962,7 +930,6 @@
         const guestName = parts[0].trim();
         const guestTable = parts[1] ? parts[1].trim() : 'Umum';
         
-        // Buat kode acak 4 karakter unik yang belum terpakai
         let randomPart = '';
         let code = '';
         do {
@@ -989,7 +956,7 @@
       showToast(`Berhasil menambahkan ${addedCount} kupon (${catLabel})!`, "success");
     }
 
-    // Render 12 Kupon per Halaman A4 Secara Seimbang & Rapi
+    // Render Kupon Cetak: Sisi kiri QR Code besar (~50%), sisi kanan detail kupon
     function renderAllCardsForPrint() {
       const masterList = getRegisteredCoupons();
       const container = document.getElementById('cardsGridContainer');
@@ -1010,32 +977,33 @@
         card.className = "ticket-card bg-slate-900 border border-slate-700 rounded-xl p-2.5 flex flex-col justify-between shadow relative";
         
         const qrid = `print_qr_${index}`;
-        const sig = generateChecksum(c.code, c.name);
-        
-        // Payload self-verifying lengkap
-        const qrPayload = `?code=${encodeURIComponent(c.code)}&name=${encodeURIComponent(c.name)}&cat=${encodeURIComponent(c.category)}&table=${encodeURIComponent(c.table)}&sig=${sig}`;
+        // Payload QR murni mengarah ke kode kupon agar ringkas dan sangat cepat discan
+        const qrPayload = `?code=${encodeURIComponent(c.code)}`;
 
-        // Desain Kartu: Keterangan Kategori Tidak Dicetak, Tatanan Seimbang
         card.innerHTML = `
           <div>
             <!-- Header Kartu -->
             <div class="flex items-center justify-between pb-1 border-b border-dashed border-slate-700 print:border-slate-300">
-              <span class="text-[8px] uppercase tracking-wider font-extrabold text-amber-400 print:text-amber-800">
+              <span class="text-[8px] uppercase tracking-wider font-extrabold text-amber-400 print:text-slate-800">
                 SOUVENIR VOUCHER
               </span>
               <span class="text-[8px] font-mono text-slate-400 print:text-slate-600 font-semibold">${c.table}</span>
             </div>
 
-            <!-- Body Kartu: QR & Detail Tamu -->
+            <!-- Body Kartu: 50% QR Besar (Kiri) & 50% Info Kupon (Kanan) -->
             <div class="flex items-center gap-2.5 my-1.5">
-              <div class="p-1 bg-white rounded-md shadow-sm border border-slate-200 flex-shrink-0 flex items-center justify-center">
-                <div id="${qrid}"></div>
+              <!-- Sisi Kiri: QR Code Besar -->
+              <div class="w-1/2 flex items-center justify-center p-1 bg-white rounded-lg shadow-sm border border-slate-200">
+                <div id="${qrid}" class="flex items-center justify-center"></div>
               </div>
-              <div class="flex-1 min-w-0">
-                <span class="text-[8px] text-slate-400 print:text-slate-500 block uppercase font-medium">Spesial Untuk:</span>
-                <h4 class="text-[11.5px] font-bold text-white print:text-slate-900 truncate font-serif leading-snug mt-0.5">${c.name}</h4>
-                <div class="mt-1.5">
-                  <span class="font-mono text-[9.5px] font-extrabold text-amber-300 print:text-slate-900 bg-amber-950/60 print:bg-slate-100 px-1.5 py-0.5 rounded border border-amber-500/40 print:border-slate-300 inline-block tracking-wider">
+
+              <!-- Sisi Kanan: Detail Tamu & Kode Kupon -->
+              <div class="w-1/2 flex flex-col justify-center min-w-0">
+                <span class="text-[7.5px] text-slate-400 print:text-slate-500 uppercase font-medium">Spesial Untuk:</span>
+                <h4 class="text-[12px] font-bold text-white print:text-slate-900 truncate font-serif leading-tight mt-0.5">${c.name}</h4>
+                <div class="mt-2">
+                  <span class="text-[7.5px] text-slate-400 print:text-slate-500 block uppercase font-medium">KODE KUPON:</span>
+                  <span class="font-mono text-[11px] font-extrabold text-amber-300 print:text-slate-950 bg-amber-950/60 print:bg-slate-100 px-1.5 py-0.5 rounded border border-amber-500/40 print:border-slate-400 inline-block tracking-wider mt-0.5">
                     ${c.code}
                   </span>
                 </div>
@@ -1045,7 +1013,7 @@
 
           <!-- Footer Kartu -->
           <div class="pt-1 border-t border-dashed border-slate-800 print:border-slate-300 text-center">
-            <p class="text-[8px] text-slate-400 print:text-slate-600 leading-none">
+            <p class="text-[7.5px] text-slate-400 print:text-slate-600 leading-none">
               ${eventTitle} • Tunjukkan saat penukaran
             </p>
           </div>
@@ -1053,11 +1021,11 @@
 
         container.appendChild(card);
 
-        // Render QR Code
+        // Render QR Code Besar (Resolusi tinggi agar sangat mudah dibaca kamera HP)
         new QRCode(document.getElementById(qrid), {
           text: qrPayload,
-          width: 58,
-          height: 58,
+          width: 78,
+          height: 78,
           colorDark: "#000000",
           colorLight: "#ffffff",
           correctLevel: QRCode.CorrectLevel.M
@@ -1067,14 +1035,56 @@
       lucide.createIcons();
     }
 
+    // ===================================================
+    // EKSPOR & IMPOR MASTER DATA ANTAR PERANGKAT (JSON)
+    // ===================================================
+    function exportMasterJSON() {
+      const masterList = getRegisteredCoupons();
+      if (masterList.length === 0) {
+        showToast("Database kupon masih kosong!", "warning");
+        return;
+      }
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(masterList, null, 2));
+      const dlAnchor = document.createElement('a');
+      dlAnchor.setAttribute("href", dataStr);
+      dlAnchor.setAttribute("download", `database_kupon_suvenir_${Date.now()}.json`);
+      dlAnchor.click();
+      dlAnchor.remove();
+      showToast("Database berhasil diekspor! Kirim file ini ke HP panitia.", "success");
+    }
+
+    function importMasterJSON(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const importedData = JSON.parse(e.target.result);
+          if (Array.isArray(importedData)) {
+            saveRegisteredCoupons(importedData);
+            updateDashboardMetrics();
+            renderAllCardsForPrint();
+            showToast(`Berhasil mengimpor ${importedData.length} kupon ke HP ini!`, "success");
+          } else {
+            showToast("Format file JSON tidak valid!", "error");
+          }
+        } catch (err) {
+          showToast("Gagal membaca file JSON!", "error");
+        }
+      };
+      reader.readAsText(file);
+      event.target.value = '';
+    }
+
     function confirmClearMasterCoupons() {
       const masterList = getRegisteredCoupons();
       if (masterList.length === 0) return;
-      if (confirm("Peringatan! Ini akan mengosongkan kartu kupon pada tampilan cetak saat ini. Lanjutkan?")) {
+      if (confirm("Peringatan! Ini akan menghapus seluruh data master kupon. Lanjutkan?")) {
         localStorage.removeItem(STORAGE_KEY_REGISTERED);
         updateDashboardMetrics();
         renderAllCardsForPrint();
-        showToast("Tampilan cetak kupon berhasil dikosongkan.");
+        showToast("Database kupon berhasil dikosongkan.");
       }
     }
 
@@ -1084,18 +1094,12 @@
     function updateDashboardMetrics() {
       const redeemed = getRedeemedList();
       const registered = getRegisteredCoupons();
+      const remaining = Math.max(0, registered.length - redeemed.length);
 
+      document.getElementById('statTotalRegistered').textContent = registered.length;
       document.getElementById('statTotalRedeemed').textContent = redeemed.length;
+      document.getElementById('statTotalRemaining').textContent = remaining;
       document.getElementById('registeredCounterBadge').textContent = `${registered.length} Kupon`;
-
-      if (redeemed.length > 0) {
-        const last = redeemed[0];
-        document.getElementById('statLastTime').textContent = `${last.time}`;
-        document.getElementById('statLastName').textContent = `${last.name} (${last.code})`;
-      } else {
-        document.getElementById('statLastTime').textContent = '-';
-        document.getElementById('statLastName').textContent = 'Belum ada aktivitas';
-      }
     }
 
     function renderHistoryTable() {
@@ -1228,7 +1232,7 @@
       document.getElementById('genGuestList').value = samples;
     }
 
-    // Init on Load
+    // Inisialisasi Aplikasi
     window.addEventListener('DOMContentLoaded', () => {
       lucide.createIcons();
       updateDashboardMetrics();
