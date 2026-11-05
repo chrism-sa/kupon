@@ -132,7 +132,7 @@
         page-break-inside: avoid;
         break-inside: avoid;
         background-color: #ffffff !important;
-        /* Bingkai Garis Ganda Klasik Elegan Tanpa Ornamen Bentuk */
+        /* Bingkai Garis Ganda Klasik Elegan */
         border: 2px solid #0b1329 !important;
         outline: 1px solid #d4af37 !important;
         outline-offset: -4px !important;
@@ -490,15 +490,15 @@
         </div>
       </div>
 
-      <!-- Generator Kupon & Upload Background -->
+      <!-- Generator Kupon Sesuai Poin Request -->
       <div class="bg-slate-900/70 border border-slate-800 rounded-3xl p-5 md:p-6 backdrop-blur-md shadow-xl space-y-5">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-800">
           <div>
             <h2 class="text-base font-bold text-slate-100 flex items-center gap-2">
               <i data-lucide="layers" class="w-5 h-5 text-amber-400"></i>
-              Generator Kupon & Cetak Kartu A4
+              Generator Kupon & Cetak Kartu A4 (Desain Mewah)
             </h2>
-            <p class="text-xs text-slate-400">Format kode acak 4 karakter alfanumerik unik (G-XXXX / F-XXXX).</p>
+            <p class="text-xs text-slate-400">Atur kategori tamu, tanggal, nama pengantin, dan background kupon Anda di sini.</p>
           </div>
           <button onclick="window.print()" class="px-4 py-2 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-bold text-xs rounded-xl shadow-lg shadow-amber-950/50 flex items-center gap-2 transition active:scale-95 no-print">
             <i data-lucide="printer" class="w-4 h-4"></i>
@@ -506,24 +506,26 @@
           </button>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <!-- 4 Opsi Input Sesuai Permintaan Anda -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <div>
-            <label class="block text-xs font-semibold text-slate-300 mb-1">Kategori Tamu</label>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">1. Kategori Tamu</label>
             <select id="genCategory" class="w-full bg-slate-950/80 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-amber-500">
               <option value="G">G - Tamu UMUM</option>
               <option value="F">F - KERABAT / Keluarga</option>
             </select>
-            <p class="text-[10px] text-slate-500 mt-1">Hanya tercatat di sistem (tidak dicetak)</p>
           </div>
           <div>
-            <label class="block text-xs font-semibold text-slate-300 mb-1">Tanggal Acara</label>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">2. Tanggal Acara</label>
             <input type="text" id="genEventDate" value="12 Desember 2026" class="w-full bg-slate-950/80 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-amber-500">
-            <p class="text-[10px] text-slate-500 mt-1">Muncul di bawah nama pengantin</p>
           </div>
           <div>
-            <label class="block text-xs font-semibold text-slate-300 mb-1">Upload Background Cetak</label>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">3. Nama Pengantin</label>
+            <input type="text" id="genCoupleNames" value="Sita & Charis" class="w-full bg-slate-950/80 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-amber-500">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">4. Upload Background Kupon</label>
             <input type="file" id="bgImageInput" accept="image/*" onchange="handleBgUpload(event)" class="w-full bg-slate-950/80 border border-slate-800 rounded-xl px-3 py-1.5 text-xs text-slate-300 file:mr-2 file:py-1 file:px-2 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-amber-500 file:text-slate-950 hover:file:bg-amber-400 cursor-pointer">
-            <p class="text-[10px] text-slate-500 mt-1">Opsional: Gambar latar belakang kupon</p>
           </div>
         </div>
 
@@ -538,14 +540,14 @@
           <textarea id="genGuestList" rows="5" placeholder="Budi Santoso, Meja Melati 01&#10;dr. Ratna, VIP 02" class="w-full bg-slate-950/80 border border-slate-800 rounded-xl p-3 text-xs font-mono text-slate-200 placeholder-slate-600 focus:outline-none focus:border-amber-500"></textarea>
         </div>
 
-        <div class="flex flex-wrap items-center gap-3">
+        <div class="flex flex-wrap items-center justify-between gap-3">
           <button onclick="handleGenerateBatch()" class="px-5 py-2.5 bg-gradient-to-r from-rose-600 to-rose-700 hover:from-rose-500 hover:to-rose-600 text-white font-bold text-xs rounded-xl shadow-lg shadow-rose-950 flex items-center gap-2 transition active:scale-95">
             <i data-lucide="plus-circle" class="w-4 h-4"></i>
             Tambah & Generate Kupon
           </button>
-          <button onclick="confirmClearMasterCoupons()" class="px-4 py-2.5 bg-rose-950/30 hover:bg-rose-900/50 text-rose-300 text-xs font-semibold rounded-xl border border-rose-900/40 transition">
-            Hapus Semua Master Kupon
-          </button>
+          <div class="text-xs font-mono text-amber-300">
+            Total Kupon Di Database: <span id="registeredCounterBadge" class="font-bold text-white">0</span>
+          </div>
         </div>
       </div>
 
@@ -620,6 +622,7 @@
     const STORAGE_KEY_REDEEMED = 'wedding_redeemed_v6';
     const STORAGE_KEY_REGISTERED = 'wedding_master_coupons_v6';
     const STORAGE_KEY_CUSTOM_BG = 'wedding_custom_bg_v1';
+    const STORAGE_KEY_COUPLE = 'wedding_couple_names_v1';
 
     let html5QrCode = null;
     let isScannerRunning = false;
@@ -627,6 +630,11 @@
     let scanCooldown = false;
     let currentSyncRawString = "";
     let customBackgroundDataUrl = localStorage.getItem(STORAGE_KEY_CUSTOM_BG) || "";
+
+    document.addEventListener("DOMContentLoaded", () => {
+      const savedCouple = localStorage.getItem(STORAGE_KEY_COUPLE);
+      if (savedCouple) document.getElementById('genCoupleNames').value = savedCouple;
+    });
 
     // Handler Upload Background Cetak
     function handleBgUpload(event) {
@@ -923,7 +931,7 @@
         showValidationResult('success', newEntry);
         showToast(`Kupon ${newEntry.code} (${newEntry.name}) diverifikasi!`, "success");
         updateDashboardMetrics();
-        renderHistoryTable();
+        renderHistoryTable(); // Otomatis perbarui list riwayat secara real-time
       }
     }
 
@@ -1069,10 +1077,13 @@
     // ===================================================
     function handleGenerateBatch() {
       const text = document.getElementById('genGuestList').value.trim();
+      const coupleNames = document.getElementById('genCoupleNames').value.trim();
       if (!text) {
         showToast("Masukkan minimal 1 nama tamu!", "warning");
         return;
       }
+
+      localStorage.setItem(STORAGE_KEY_COUPLE, coupleNames);
 
       const catType = document.getElementById('genCategory').value; // 'G' atau 'F'
       const prefix = `${catType}-`;
@@ -1114,13 +1125,16 @@
     }
 
     // =========================================================================
-    // REDESAIN KUPON CETAK: BINGKAI GARIS GANDA KLASIK (TANPA ORNAMEN ABSTRAK)
-    // + DUKUNGAN BACKGROUND UPLOAD
+    // RENDER KUPON CETAK SESUAI PERMINTAAN:
+    // - Garis Pemisah & Notes di bawah judul
+    // - Nama Tamu di bawah Kode Voucher
+    // - Nama Pasangan Pengantin Sesuai Inputan Form
     // =========================================================================
     function renderAllCardsForPrint() {
       const masterList = getRegisteredCoupons();
       const container = document.getElementById('cardsGridContainer');
       const eventDate = document.getElementById('genEventDate').value.trim() || '12 Desember 2026';
+      const coupleNames = document.getElementById('genCoupleNames').value.trim() || 'Sita & Charis';
       container.innerHTML = '';
 
       if (masterList.length === 0) {
@@ -1134,7 +1148,6 @@
 
       masterList.forEach((c, index) => {
         const card = document.createElement('div');
-        // Menerapkan background kustom jika diupload, jika tidak gunakan putih bersih
         const bgStyle = customBackgroundDataUrl ? `background-image: url('${customBackgroundDataUrl}');` : '';
         card.className = "ticket-card bg-white rounded-xl p-2.5 flex flex-col justify-between shadow-sm relative overflow-hidden";
         card.style.cssText = bgStyle;
@@ -1143,38 +1156,45 @@
         const qrPayload = `?code=${encodeURIComponent(c.code)}`;
 
         card.innerHTML = `
-          <!-- 1. BAGIAN ATAS: JUDUL UTAMA MODERN SERIF & PENGANTAR 1 BARIS -->
+          <!-- 1. BAGIAN ATAS: JUDUL, GARIS PEMISAH & NOTES 1 BARIS -->
           <div class="relative z-10 pt-0.5">
-            <h2 class="font-serif font-bold text-[10.5px] tracking-wider text-navy-950 uppercase leading-tight print:text-navy-950">
+            <h2 class="font-serif font-bold text-[10px] tracking-wider text-navy-950 uppercase leading-tight">
               KARTU PENUKARAN SOUVENIR
             </h2>
-            <p class="font-sans text-[5.8px] text-slate-500 print:text-slate-600 mt-0.5 leading-none" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+            <div class="w-full h-[1px] bg-gold-500/40 my-1"></div>
+            <p class="font-sans text-[5.5px] text-slate-500 leading-none" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
               Mohon kartu ini dibawakan dan ditukarkan di meja penukaran souvenir
             </p>
           </div>
 
-          <!-- 2. BAGIAN TENGAH: QR CODE DALAM BINGKAI EMAS & BINGKAI KODE VOUCHER CANTIK -->
+          <!-- 2. BAGIAN TENGAH: QR CODE, KODE VOUCHER & NAMA TAMU -->
           <div class="relative z-10 my-auto py-1 flex flex-col items-center justify-center">
             <div class="p-1 bg-white/90 backdrop-blur-2xs rounded-md shadow-sm border border-gold-500/80 print:border-[#d4af37] inline-flex items-center justify-center">
               <div id="${qrid}" class="flex items-center justify-center"></div>
             </div>
-            <!-- Bingkai Kode Voucher Cantik (Badge Desain Mewah) -->
+            <!-- Kode Voucher -->
             <div class="mt-1">
-              <span class="font-mono text-[8.5px] font-bold text-navy-900 bg-white/90 px-2.5 py-0.5 rounded-full border border-gold-400/80 inline-block tracking-wider shadow-2xs">
+              <span class="font-mono text-[8.5px] font-bold text-navy-900 bg-white/90 px-2.5 py-0.5 rounded-full border border-gold-400/80 inline-block tracking-wider">
                 ${c.code}
               </span>
             </div>
+            <!-- Nama Tamu di Bawah Kode Voucher -->
+            <div class="mt-0.5">
+              <h4 class="font-serif font-bold text-[9.5px] text-navy-950 truncate max-w-[160px]">
+                ${c.name}
+              </h4>
+            </div>
           </div>
 
-          <!-- 3. BAGIAN BAWAH: DIPISAHKAN GARIS PUTUS-PUTUS, THE WEDDING OF, NAMA & TANGGAL -->
-          <div class="relative z-10 border-t border-dashed border-slate-400 print:border-slate-300 pt-1 pb-0.5">
-            <p class="font-sans text-[6.5px] tracking-[0.25em] text-slate-500 uppercase font-semibold">
+          <!-- 3. BAGIAN BAWAH: THE WEDDING OF, NAMA PENGANTIN & TANGGAL -->
+          <div class="relative z-10 border-t border-dashed border-slate-300 pt-1 pb-0.5">
+            <p class="font-sans text-[6px] tracking-[0.25em] text-slate-500 uppercase font-semibold">
               THE WEDDING OF
             </p>
-            <h3 class="font-script text-[18px] text-navy-900 print:text-navy-950 leading-tight my-0.5 font-bold">
-              Sita & Charis
+            <h3 class="font-script text-[17px] text-navy-900 leading-tight my-0.5 font-bold">
+              ${coupleNames}
             </h3>
-            <p class="font-sans text-[7.5px] font-semibold text-slate-600 print:text-slate-700 tracking-wide">
+            <p class="font-sans text-[7px] font-semibold text-slate-600 tracking-wide">
               ${eventDate}
             </p>
           </div>
@@ -1182,12 +1202,11 @@
 
         container.appendChild(card);
 
-        // Render QR Code di Tengah
         new QRCode(document.getElementById(qrid), {
           text: qrPayload,
           width: 66,
           height: 66,
-          colorDark: "#0b1329", // Warna Navy Blue Gelap Mewah
+          colorDark: "#0b1329",
           colorLight: "#ffffff",
           correctLevel: QRCode.CorrectLevel.M
         });
@@ -1214,6 +1233,29 @@
       showToast("Cadangan database berhasil diekspor!", "success");
     }
 
+    function importMasterJSON(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const imported = JSON.parse(e.target.result);
+          if (Array.isArray(imported)) {
+            saveRegisteredCoupons(imported);
+            updateDashboardMetrics();
+            renderAllCardsForPrint();
+            showToast(`Berhasil mengimpor ${imported.length} kupon!`, "success");
+          } else {
+            showToast("Format file salah!", "error");
+          }
+        } catch(err) {
+          showToast("Gagal membaca file JSON!", "error");
+        }
+      };
+      reader.readAsText(file);
+      event.target.value = '';
+    }
+
     function confirmClearMasterCoupons() {
       const masterList = getRegisteredCoupons();
       if (masterList.length === 0) return;
@@ -1236,7 +1278,7 @@
       document.getElementById('statTotalRegistered').textContent = registered.length;
       document.getElementById('statTotalRedeemed').textContent = redeemed.length;
       document.getElementById('statTotalRemaining').textContent = remaining;
-      document.getElementById('registeredCounterBadge').textContent = `${registered.length} Kupon`;
+      document.getElementById('registeredCounterBadge').textContent = `${registered.length}`;
     }
 
     function renderHistoryTable() {
@@ -1253,7 +1295,6 @@
       tbody.innerHTML = '';
 
       if (filtered.length === 0) {
-        emptyState.classList.add('hidden'); // Sembunyikan pesan kosong jika tidak relevan, atau biarkan
         emptyState.classList.remove('hidden');
       } else {
         emptyState.classList.add('hidden');
