@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Sistem Penukaran Kupon Suvenir Pernikahan</title>
+  <title>Sistem Penukaran Kupon Suvenir Pernikahan - Sita & Charis</title>
   
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -17,16 +17,32 @@
               500: '#e11d48',
               600: '#be123c',
               700: '#9f1239',
+            },
+            gold: {
+              400: '#fbbf24',
+              500: '#d4af37',
+              600: '#b89628'
+            },
+            navy: {
+              800: '#111e38',
+              900: '#0b1329',
+              950: '#060a17'
             }
           },
           fontFamily: {
-            sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
-            serif: ['Georgia', 'Cambria', 'serif']
+            sans: ['Montserrat', 'system-ui', 'sans-serif'],
+            serif: ['Cinzel', 'Playfair Display', 'serif'],
+            script: ['"Great Vibes"', 'cursive']
           }
         }
       }
     }
   </script>
+
+  <!-- Google Fonts Khusus Konsep Desain -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Great+Vibes&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
 
   <!-- External Libraries -->
   <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
@@ -67,7 +83,7 @@
       left: 6%;
       right: 6%;
       height: 3px;
-      background: linear-gradient(90deg, transparent, #10b981, #fbbf24, #10b981, transparent);
+      background: linear-gradient(90deg, transparent, #10b981, #d4af37, #10b981, transparent);
       box-shadow: 0 0 10px #10b981;
       animation: scan-line-move 2s infinite ease-in-out;
       border-radius: 9999px;
@@ -116,22 +132,24 @@
         page-break-inside: avoid;
         break-inside: avoid;
         background: #ffffff !important;
-        border: 1.5px solid #475569 !important;
+        border: 1px solid #cbd5e1 !important;
         border-radius: 8px !important;
         box-shadow: none !important;
         color: #0f172a !important;
         height: 66mm !important;
-        padding: 7px 8px !important;
+        padding: 7px 9px !important;
         box-sizing: border-box !important;
         display: flex !important;
         flex-direction: column !important;
         justify-content: space-between !important;
         text-align: center !important;
+        position: relative !important;
+        overflow: hidden !important;
       }
     }
   </style>
 </head>
-<body class="min-h-full flex flex-col bg-gradient-to-br from-slate-950 via-slate-900 to-rose-950 text-slate-100 antialiased selection:bg-rose-500 selection:text-white">
+<body class="min-h-full flex flex-col bg-gradient-to-br from-slate-950 via-slate-900 to-navy-950 text-slate-100 antialiased selection:bg-rose-500 selection:text-white">
 
   <!-- Header -->
   <header class="sticky top-0 z-40 backdrop-blur-xl bg-slate-950/80 border-b border-rose-500/20 shadow-lg px-4 py-3">
@@ -148,7 +166,7 @@
           </h1>
           <p class="text-[11px] text-slate-400 flex items-center gap-1.5">
             <span class="w-2 h-2 rounded-full bg-emerald-500 inline-block animate-pulse"></span>
-            Verifikasi Kupon Sah
+            Sita & Charis Wedding
           </p>
         </div>
       </div>
@@ -265,11 +283,17 @@
             </div>
           </div>
 
-          <!-- Input Manual Kode Kupon -->
-          <div class="mt-4 pt-3 border-t border-slate-800/80">
-            <label class="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-1.5">
-              Input Kode Manual (Cek Database)
-            </label>
+          <!-- Input Manual Kode Kupon & Tombol Tempel Teks Sync -->
+          <div class="mt-4 pt-3 border-t border-slate-800/80 space-y-2">
+            <div class="flex items-center justify-between">
+              <label class="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
+                Input Kode Manual
+              </label>
+              <button onclick="promptManualSyncText()" class="text-[10px] text-amber-400 hover:text-amber-300 flex items-center gap-1 font-medium">
+                <i data-lucide="clipboard" class="w-3 h-3"></i>
+                <span>Paste Kode Sync (Alternatif)</span>
+              </button>
+            </div>
             <form onsubmit="handleManualSubmit(event)" class="flex gap-2">
               <input type="text" id="manualCodeInput" placeholder="Contoh: G-7X9K atau F-2M8P" class="flex-1 bg-slate-950/80 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-100 uppercase font-mono placeholder-slate-500 focus:outline-none focus:border-rose-500 transition">
               <button type="submit" class="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold rounded-xl border border-slate-700 transition flex items-center gap-1.5 active:scale-95">
@@ -290,7 +314,7 @@
                 <i data-lucide="qr-code" class="w-7 h-7"></i>
               </div>
               <h3 class="text-base font-bold text-slate-200">Menunggu Kupon</h3>
-              <p class="text-xs text-slate-400 mt-1 max-w-xs">Arahkan kamera ke QR code undangan atau ketikkan kode kupon tamu.</p>
+              <p class="text-xs text-slate-400 mt-1 max-w-xs">Arahkan kamera ke QR code undangan, atau scan QR Sync Database dari laptop.</p>
             </div>
 
             <!-- SUCCESS STATE: Kupon Sah & Pertama Ditukar -->
@@ -439,22 +463,22 @@
     <section id="generatorSection" class="space-y-6 hidden">
       
       <!-- Panel Sinkronisasi Database via Scan QR Laptop ke HP -->
-      <div class="bg-gradient-to-r from-slate-900 to-slate-800 border border-amber-500/40 rounded-3xl p-5 shadow-xl flex flex-col md:flex-row items-center justify-between gap-4">
+      <div class="bg-gradient-to-r from-slate-900 to-navy-900 border border-amber-500/40 rounded-3xl p-5 shadow-xl flex flex-col md:flex-row items-center justify-between gap-4">
         <div>
           <h3 class="font-bold text-sm text-amber-300 flex items-center gap-2">
             <i data-lucide="qr-code" class="w-4 h-4"></i>
             Sinkronisasi Database Langsung ke HP Panitia
           </h3>
           <p class="text-xs text-slate-300 mt-1">
-            Klik tombol di samping untuk menampilkan QR Sinkronisasi di layar laptop, lalu scan dengan kamera pemindai HP panitia.
+            Klik tombol di samping untuk menampilkan QR Sinkronisasi ultra-ringan di layar laptop, lalu scan dengan kamera pemindai HP panitia.
           </p>
         </div>
         <div class="flex items-center gap-2 w-full md:w-auto">
-          <button onclick="openSyncQRModal()" class="flex-1 md:flex-initial px-4 py-2 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 shadow-lg transition active:scale-95">
+          <button onclick="openSyncQRModal()" class="flex-1 md:flex-initial px-4 py-2.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 shadow-lg transition active:scale-95">
             <i data-lucide="maximize" class="w-4 h-4"></i>
             Tampilkan QR Sync HP
           </button>
-          <button onclick="exportMasterJSON()" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-amber-300 border border-amber-500/30 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition" title="Cadangan JSON">
+          <button onclick="exportMasterJSON()" class="px-3 py-2.5 bg-slate-800 hover:bg-slate-700 text-amber-300 border border-amber-500/30 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition" title="Cadangan JSON">
             <i data-lucide="download" class="w-3.5 h-3.5"></i>
             <span>Backup File</span>
           </button>
@@ -467,9 +491,9 @@
           <div>
             <h2 class="text-base font-bold text-slate-100 flex items-center gap-2">
               <i data-lucide="layers" class="w-5 h-5 text-amber-400"></i>
-              Generator Kupon & Cetak Kartu A4
+              Generator Kupon & Cetak Kartu A4 (Desain Mewah)
             </h2>
-            <p class="text-xs text-slate-400">Format kode acak 4 karakter alfanumerik unik (misal: G-7X9K, F-2M8P).</p>
+            <p class="text-xs text-slate-400">Format kode acak 4 karakter alfanumerik unik (G-XXXX / F-XXXX).</p>
           </div>
           <button onclick="window.print()" class="px-4 py-2 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-bold text-xs rounded-xl shadow-lg shadow-amber-950/50 flex items-center gap-2 transition active:scale-95 no-print">
             <i data-lucide="printer" class="w-4 h-4"></i>
@@ -484,12 +508,12 @@
               <option value="G">G - Tamu UMUM</option>
               <option value="F">F - KERABAT / Keluarga</option>
             </select>
-            <p class="text-[10px] text-slate-500 mt-1">Kategori hanya muncul di layar sistem saat discan (tidak dicetak)</p>
+            <p class="text-[10px] text-slate-500 mt-1">Hanya tercatat di sistem (tidak dicetak di kupon)</p>
           </div>
           <div>
-            <label class="block text-xs font-semibold text-slate-300 mb-1">Nama Pasangan Pengantin</label>
-            <input type="text" id="genEventTitle" value="Romeo & Juliet" class="w-full bg-slate-950/80 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-amber-500">
-            <p class="text-[10px] text-slate-500 mt-1">Akan tercetak: The Wedding of [Nama Pasangan]</p>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Tanggal Acara</label>
+            <input type="text" id="genEventDate" value="12 Desember 2026" class="w-full bg-slate-950/80 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-amber-500">
+            <p class="text-[10px] text-slate-500 mt-1">Muncul rapi di bagian paling bawah kupon</p>
           </div>
           <div>
             <label class="block text-xs font-semibold text-slate-300 mb-1">Total Kupon di Database</label>
@@ -533,31 +557,35 @@
 
   </main>
 
-  <!-- MODAL: QR SYNC DATABASE (UNTUK DI-SCAN OLEH HP) -->
+  <!-- MODAL: QR SYNC DATABASE (DIOPTIMASI AGAR CEPAT DIBACA KAMERA HP) -->
   <div id="syncQRModal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm flex items-center justify-center p-4 hidden">
     <div class="bg-slate-900 border border-amber-500/50 rounded-3xl max-w-sm w-full p-6 shadow-2xl text-center space-y-4">
       <div class="flex justify-between items-center">
         <div class="flex items-center gap-2 text-amber-400 font-bold text-sm">
           <i data-lucide="scan" class="w-4 h-4"></i>
-          <span>Scan dengan HP Panitia</span>
+          <span>Scan dengan Kamera HP Panitia</span>
         </div>
         <button onclick="closeSyncQRModal()" class="text-slate-400 hover:text-white p-1 rounded-lg">
           <i data-lucide="x" class="w-5 h-5"></i>
         </button>
       </div>
 
-      <div class="p-3 bg-white rounded-2xl inline-block shadow-inner">
+      <div class="p-3 bg-white rounded-2xl inline-block shadow-inner border-2 border-amber-400">
         <div id="syncQRContainer" class="flex items-center justify-center"></div>
       </div>
 
       <div>
         <p class="text-xs text-slate-200 font-semibold" id="syncQRCountLabel">Memuat data kupon...</p>
-        <p class="text-[11px] text-slate-400 mt-1">Buka tab <strong>Pemindai (HP)</strong> di ponsel panitia, lalu arahkan kameranya ke QR ini untuk sinkronisasi seketika.</p>
+        <p class="text-[11px] text-slate-400 mt-1">Buka menu <strong>Pemindai (HP)</strong> di HP panitia, lalu bidikkan kameranya ke QR ini untuk transfer database otomatis.</p>
       </div>
 
-      <button onclick="closeSyncQRModal()" class="w-full py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold rounded-xl transition">
-        Tutup
-      </button>
+      <!-- Tombol Copy Payload Teks Jika Kamera Silau -->
+      <div class="pt-2 border-t border-slate-800">
+        <button onclick="copySyncPayloadText()" class="w-full py-2 bg-slate-800 hover:bg-slate-700 text-amber-300 text-xs font-semibold rounded-xl border border-amber-500/30 flex items-center justify-center gap-1.5 transition">
+          <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+          <span>Salin Teks Sync (Jika Kamera Silau)</span>
+        </button>
+      </div>
     </div>
   </div>
 
@@ -588,13 +616,14 @@
     // ===================================================
     // MASTER KEYS & STATE (PERSISTEN DATABASE)
     // ===================================================
-    const STORAGE_KEY_REDEEMED = 'wedding_redeemed_v5';
-    const STORAGE_KEY_REGISTERED = 'wedding_master_coupons_v5';
+    const STORAGE_KEY_REDEEMED = 'wedding_redeemed_v6';
+    const STORAGE_KEY_REGISTERED = 'wedding_master_coupons_v6';
 
     let html5QrCode = null;
     let isScannerRunning = false;
     let currentFacingMode = "environment";
     let scanCooldown = false;
+    let currentSyncRawString = "";
 
     // Helper Kode Acak Alfanumerik (Maksimal 4 Karakter)
     function generateRandom4Chars() {
@@ -704,7 +733,8 @@
     }
 
     // =========================================================================
-    // MODAL QR SYNC (SINKRONISASI DATABASE LANGSUNG VIA SCAN QR LAPTOP KE HP)
+    // QR SYNC DATABASE TERTINGGI (KOMPRESI ULTRA RINGAN ANTI GAGAL SCAN)
+    // Format Kompresi: WDD|<code1>~<name1>~<cat1>~<table1>|<code2>~<name2>...
     // =========================================================================
     function openSyncQRModal() {
       const masterList = getRegisteredCoupons();
@@ -713,21 +743,21 @@
         return;
       }
 
-      // Kompresi data esensial agar muat dipindai dalam 1 QR
-      const miniData = masterList.map(c => [c.code, c.name, c.category, c.table]);
-      const payload = "SYNC_DB:" + JSON.stringify(miniData);
+      // Kompresi tanpa JSON agar byte size kecil dan QR sangat mudah dibaca kamera HP
+      const rows = masterList.map(c => `${c.code}~${c.name}~${c.category}~${c.table}`);
+      currentSyncRawString = "WDD_SYNC|" + rows.join("|");
 
       const modal = document.getElementById('syncQRModal');
       const container = document.getElementById('syncQRContainer');
       container.innerHTML = '';
 
       new QRCode(container, {
-        text: payload,
-        width: 220,
-        height: 220,
+        text: currentSyncRawString,
+        width: 230,
+        height: 230,
         colorDark: "#000000",
         colorLight: "#ffffff",
-        correctLevel: QRCode.CorrectLevel.L
+        correctLevel: QRCode.CorrectLevel.L // Level L = dot jarang, paling mudah dibaca oleh kamera smartphone
       });
 
       document.getElementById('syncQRCountLabel').textContent = `Total ${masterList.length} Kupon Siap Disinkronkan`;
@@ -738,41 +768,68 @@
       document.getElementById('syncQRModal').classList.add('hidden');
     }
 
+    function copySyncPayloadText() {
+      if (!currentSyncRawString) return;
+      navigator.clipboard.writeText(currentSyncRawString).then(() => {
+        showToast("Teks kode sync berhasil disalin ke clipboard!", "success");
+      }).catch(() => {
+        prompt("Salin teks berikut:", currentSyncRawString);
+      });
+    }
+
+    function promptManualSyncText() {
+      const pasted = prompt("Tempelkan teks kode sinkronisasi (WDD_SYNC|...):");
+      if (pasted) {
+        const result = parseVoucherPayload(pasted.trim());
+        if (result && result.isSyncPacket) {
+          // Handled inside parseVoucherPayload
+        } else {
+          showToast("Format kode sync tidak valid!", "error");
+        }
+      }
+    }
+
     // =========================================================================
-    // PARSER & VERIFIKASI KETAT (MENDUKUNG KUPON TAMU & AUTO-SYNC QR DATABASE)
+    // PARSER & VERIFIKASI KETAT
     // =========================================================================
     function parseVoucherPayload(rawText) {
       if (!rawText || typeof rawText !== 'string') return null;
       const trimmed = rawText.trim();
 
-      // FITUR BARU: Deteksi jika yang discan adalah QR Sinkronisasi Database
-      if (trimmed.startsWith("SYNC_DB:")) {
+      // 1. DETEKSI SYNC DATABASE: Format Baru (WDD_SYNC|) maupun Format Lama (SYNC_DB:)
+      if (trimmed.startsWith("WDD_SYNC|") || trimmed.startsWith("SYNC_DB:")) {
         try {
-          const jsonStr = trimmed.replace("SYNC_DB:", "");
-          const miniData = JSON.parse(jsonStr);
-          if (Array.isArray(miniData)) {
-            const masterCoupons = miniData.map(item => ({
-              code: item[0],
-              name: item[1],
-              category: item[2],
-              table: item[3]
-            }));
-            saveRegisteredCoupons(masterCoupons);
+          let imported = [];
+          if (trimmed.startsWith("WDD_SYNC|")) {
+            const rawItems = trimmed.replace("WDD_SYNC|", "").split("|");
+            imported = rawItems.map(item => {
+              const [code, name, category, table] = item.split("~");
+              return { code: code.toUpperCase(), name: name || "Tamu", category: category || "UMUM", table: table || "Umum" };
+            });
+          } else {
+            const jsonStr = trimmed.replace("SYNC_DB:", "");
+            const miniData = JSON.parse(jsonStr);
+            imported = miniData.map(item => ({ code: item[0], name: item[1], category: item[2], table: item[3] }));
+          }
+
+          if (imported.length > 0) {
+            saveRegisteredCoupons(imported);
             updateDashboardMetrics();
             playSoundSuccess();
             try { confetti({ particleCount: 70, spread: 60, origin: { y: 0.5 } }); } catch(e){}
-            showToast(`Sukses sinkronisasi! ${masterCoupons.length} kupon berhasil diimpor ke HP.`, "success");
+            showToast(`Sukses sinkronisasi! ${imported.length} kupon berhasil diimpor ke HP.`, "success");
             return { isSyncPacket: true };
           }
         } catch(e) {
-          showToast("QR Sinkronisasi rusak atau tidak lengkap!", "error");
+          console.error("Sync parse error:", e);
+          showToast("Data sinkronisasi tidak terbaca!", "error");
           return null;
         }
       }
 
       let code = "";
 
-      // Ekstrak Kode Kupon dari URL Parameter atau Plain Text
+      // 2. Ekstrak Kode Kupon Tamu dari URL Parameter atau Plain Text
       if (trimmed.includes('?') || trimmed.includes('&') || trimmed.includes('code=')) {
         try {
           const queryString = trimmed.includes('?') ? trimmed.split('?')[1] : trimmed;
@@ -785,7 +842,7 @@
 
       if (!code) return null;
 
-      // Cari kode di Master Database perangkat HP
+      // 3. Cari kode di Master Database perangkat HP
       const masterList = getRegisteredCoupons();
       const foundInMaster = masterList.find(c => c.code.toUpperCase() === code);
 
@@ -799,7 +856,7 @@
         };
       }
 
-      // Kode acak palsu yang tidak terdaftar
+      // Kode asal-asalan yang tidak terdaftar di database
       return {
         code: code,
         name: 'Tidak Dikenal',
@@ -1000,7 +1057,7 @@
     }
 
     // ===================================================
-    // GENERATOR KUPON & CETAK A4 SEIMBANG
+    // GENERATOR KUPON & PERSISTENSI MASTER
     // ===================================================
     function handleGenerateBatch() {
       const text = document.getElementById('genGuestList').value.trim();
@@ -1049,16 +1106,12 @@
     }
 
     // =========================================================================
-    // REDESAIN KUPON CETAK SESUAI KONSEP:
-    // 1. JUDUL: KUPON SOUVENIR & THE WEDDING OF [NAMA]
-    // 2. KODE QR DI TENGAH KOTAK
-    // 3. KODE KUPON & NAMA UNDANGAN DI BAWAHNYA
-    // 4. PALING BAWAH: NOTES WAJIB DIBAWA
+    // REDESAIN KUPON CETAK SESUAI KONSEP: NAVY WATERCOLOR & GOLD BOTANICAL
     // =========================================================================
     function renderAllCardsForPrint() {
       const masterList = getRegisteredCoupons();
       const container = document.getElementById('cardsGridContainer');
-      const coupleName = document.getElementById('genEventTitle').value.trim() || 'Romeo & Juliet';
+      const eventDate = document.getElementById('genEventDate').value.trim() || '12 Desember 2026';
       container.innerHTML = '';
 
       if (masterList.length === 0) {
@@ -1072,49 +1125,60 @@
 
       masterList.forEach((c, index) => {
         const card = document.createElement('div');
-        card.className = "ticket-card bg-slate-900 border border-slate-700 rounded-xl p-2.5 flex flex-col justify-between shadow relative";
+        // Styling Kartu Kupon: Tema Navy Watercolor, Botani Sudut & Bingkai Emas
+        card.className = "ticket-card bg-white border border-slate-300 rounded-xl p-2.5 flex flex-col justify-between shadow-sm relative overflow-hidden print:border-slate-400";
         
         const qrid = `print_qr_${index}`;
         const qrPayload = `?code=${encodeURIComponent(c.code)}`;
 
         card.innerHTML = `
-          <!-- 1. HEADER ATAS: JUDUL & THE WEDDING OF -->
-          <div class="border-b border-dashed border-slate-700 print:border-slate-300 pb-1">
-            <div class="flex items-center justify-center gap-1.5">
-              <span class="h-[0.5px] w-5 bg-amber-400 print:bg-slate-400"></span>
-              <span class="text-[8px] uppercase tracking-[0.2em] font-extrabold text-amber-400 print:text-slate-800">
-                KUPON SOUVENIR
-              </span>
-              <span class="h-[0.5px] w-5 bg-amber-400 print:bg-slate-400"></span>
-            </div>
-            <h3 class="text-[11px] font-bold font-serif text-white print:text-slate-950 tracking-wide mt-0.5 leading-tight">
-              The Wedding Of ${coupleName}
-            </h3>
+          <!-- Ornamen Botani Cat Air Sudut Kiri Bawah (SVG) -->
+          <svg class="absolute -bottom-2 -left-2 w-14 h-14 pointer-events-none opacity-40 text-navy-800 print:opacity-35" viewBox="0 0 100 100" fill="currentColor">
+            <path d="M10,90 Q40,80 50,50 Q60,80 90,90 Q50,70 10,90 Z" />
+            <circle cx="30" cy="70" r="5" fill="#d4af37" />
+            <circle cx="45" cy="55" r="4" fill="#1e3a8a" />
+          </svg>
+
+          <!-- Ornamen Botani Cat Air Sudut Kanan Atas (SVG) -->
+          <svg class="absolute -top-2 -right-2 w-14 h-14 pointer-events-none opacity-40 text-navy-800 print:opacity-35 rotate-180" viewBox="0 0 100 100" fill="currentColor">
+            <path d="M10,90 Q40,80 50,50 Q60,80 90,90 Q50,70 10,90 Z" />
+            <circle cx="30" cy="70" r="5" fill="#d4af37" />
+            <circle cx="45" cy="55" r="4" fill="#1e3a8a" />
+          </svg>
+
+          <!-- 1. BAGIAN ATAS: JUDUL UTAMA MODERN SERIF & PENGANTAR -->
+          <div class="relative z-10 pt-0.5">
+            <h2 class="font-serif font-bold text-[10.5px] tracking-wider text-navy-950 uppercase leading-tight print:text-navy-950">
+              KARTU PENUKARAN SOUVENIR
+            </h2>
+            <p class="font-sans text-[6.8px] text-slate-500 print:text-slate-600 mt-0.5 leading-none">
+              Mohon kartu ini dibawakan dan ditukarkan di meja penukaran souvenir
+            </p>
           </div>
 
-          <!-- 2. TENGAH: KODE QR BESAR DI TENGAH KOTAK -->
-          <div class="my-auto py-1 flex items-center justify-center">
-            <div class="p-1 bg-white rounded-lg shadow-sm border border-slate-200 inline-flex items-center justify-center">
+          <!-- 2. BAGIAN TENGAH: QR CODE DALAM BINGKAI EMAS TIPIS ELEGAN -->
+          <div class="relative z-10 my-auto py-1 flex flex-col items-center justify-center">
+            <div class="p-1 bg-white rounded-md shadow-sm border border-gold-500/80 print:border-[#d4af37] inline-flex items-center justify-center">
               <div id="${qrid}" class="flex items-center justify-center"></div>
             </div>
-          </div>
-
-          <!-- 3. BAWAH QR: KODE KUPON & NAMA UNDANGAN -->
-          <div class="pt-0.5">
-            <div>
-              <span class="font-mono text-[10.5px] font-extrabold text-amber-300 print:text-slate-950 bg-amber-950/60 print:bg-slate-100 px-2 py-0.5 rounded border border-amber-500/40 print:border-slate-300 inline-block tracking-wider">
+            <!-- Kode Kupon Alfanumerik Rapi Di Bawah Kotak QR -->
+            <div class="mt-1">
+              <span class="font-mono text-[8.5px] font-bold text-navy-900 bg-slate-100 px-1.5 py-0.5 rounded border border-slate-300 inline-block tracking-wider">
                 ${c.code}
               </span>
             </div>
-            <h4 class="text-[11px] font-bold text-white print:text-slate-900 truncate font-serif mt-1">
-              ${c.name}
-            </h4>
           </div>
 
-          <!-- 4. PALING BAWAH: NOTES WAJIB DIBAWA -->
-          <div class="pt-1 border-t border-dashed border-slate-800 print:border-slate-300">
-            <p class="text-[7.5px] text-slate-400 print:text-slate-600 italic leading-none font-medium">
-              * Wajib dibawa dan ditunjukkan saat penukaran
+          <!-- 3. BAGIAN BAWAH: DIPISAHKAN GARIS PUTUS-PUTUS, THE WEDDING OF, NAMA & TANGGAL -->
+          <div class="relative z-10 border-t border-dashed border-slate-400 print:border-slate-300 pt-1 pb-0.5">
+            <p class="font-sans text-[6.5px] tracking-[0.25em] text-slate-500 uppercase font-semibold">
+              THE WEDDING OF
+            </p>
+            <h3 class="font-script text-[18px] text-navy-900 print:text-navy-950 leading-tight my-0.5 font-bold">
+              Sita & Charis
+            </h3>
+            <p class="font-sans text-[7.5px] font-semibold text-slate-600 print:text-slate-700 tracking-wide">
+              ${eventDate}
             </p>
           </div>
         `;
@@ -1124,9 +1188,9 @@
         // Render QR Code di Tengah
         new QRCode(document.getElementById(qrid), {
           text: qrPayload,
-          width: 72,
-          height: 72,
-          colorDark: "#000000",
+          width: 66,
+          height: 66,
+          colorDark: "#0b1329", // Warna Navy Blue Gelap Mewah
           colorLight: "#ffffff",
           correctLevel: QRCode.CorrectLevel.M
         });
@@ -1300,7 +1364,7 @@
       const samples = [
         "Bpk. Ahmad Subagyo, Meja VIP 01",
         "Siti Rahmawati, Meja Mawar 02",
-        "Keluarga Hendra Pratama, Meja VIP",
+        "Keluarga Hendra Pratama, VIP Kerabat",
         "drg. Maya Indah, Meja Melati 04",
         "Om Joko & Tante Rina, Keluarga Inti",
         "Budi Santoso & Partner, Meja Tulip 03"
