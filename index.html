@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
-  <title>Generator Kupon Undangan &amp; Suvenir — Sita &amp; Charis</title>
+  <title>Generator Kupon Undangan Souvenir — Charis &amp; Sita</title>
 
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -89,6 +89,28 @@
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
       border: 1px solid rgba(197, 155, 72, 0.25);
+    }
+
+    /* Onboarding Loading Screen */
+    .onboarding-screen {
+      background-image:
+        radial-gradient(circle at 20% 18%, rgba(212, 178, 106, 0.24) 0%, transparent 48%),
+        radial-gradient(circle at 80% 82%, rgba(242, 228, 198, 0.7) 0%, transparent 50%),
+        linear-gradient(160deg, #FFFDF9 0%, #FAF7F2 55%, #F2E7D3 100%);
+      transition: opacity 0.45s ease, visibility 0.45s ease;
+    }
+    .onboarding-screen.is-hidden {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    @keyframes crestPulse {
+      0%, 100% { transform: scale(1); box-shadow: 0 12px 32px -8px rgba(197, 155, 72, 0.28); }
+      50% { transform: scale(1.03); box-shadow: 0 18px 40px -8px rgba(197, 155, 72, 0.42); }
+    }
+    .crest-emblem {
+      animation: crestPulse 2.8s ease-in-out infinite;
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -299,6 +321,7 @@
       }
 
       .no-print,
+      #onboardingSplash,
       header,
       #toastContainer,
       #syncQRModal,
@@ -350,6 +373,48 @@
 
 <body class="min-h-screen ambient-bg text-ink-900 font-sans antialiased selection:bg-champagne-500 selection:text-white">
 
+  <!-- ============================================================ -->
+  <!-- ONBOARDING LOADING SCREEN                                    -->
+  <!-- ============================================================ -->
+  <div id="onboardingSplash" class="onboarding-screen fixed inset-0 z-50 flex flex-col items-center justify-center p-6 text-center no-print">
+    <div class="max-w-sm w-full glass-panel rounded-[2rem] p-8 shadow-luxury border border-champagne-400/50 space-y-6">
+      <div class="mx-auto w-20 h-20 rounded-full bg-gradient-to-br from-champagne-400 via-champagne-500 to-champagne-600 p-[2px] crest-emblem">
+        <div class="w-full h-full rounded-full bg-cream-50 flex flex-col items-center justify-center border border-champagne-200">
+          <span class="font-serif text-2xl font-bold tracking-wider text-ink-900">C<span class="text-champagne-600 italic">&amp;</span>S</span>
+        </div>
+      </div>
+
+      <div class="space-y-1.5">
+        <p class="text-[10px] font-bold uppercase tracking-[0.26em] text-champagne-600">
+          Wedding Souvenir System
+        </p>
+        <h2 class="font-script text-4xl text-ink-900 leading-tight">
+          Charis &amp; Sita
+        </h2>
+        <p class="text-xs text-ink-500 font-medium">
+          Saturday, 12 December 2026
+        </p>
+      </div>
+
+      <div class="space-y-2">
+        <div class="w-full h-2 rounded-full bg-cream-200 overflow-hidden border border-champagne-400/30">
+          <div id="onboardingProgressBar" class="h-full bg-gradient-to-r from-champagne-400 to-champagne-600 rounded-full transition-all duration-300" style="width: 18%;"></div>
+        </div>
+        <div class="flex items-center justify-between text-[11px] text-ink-500">
+          <span id="onboardingStatusText">Menyiapkan pemindai &amp; database kupon...</span>
+          <span id="onboardingPercentText" class="font-mono font-bold text-champagne-600">18%</span>
+        </div>
+      </div>
+
+      <div class="pt-1">
+        <button type="button" onclick="dismissOnboarding()" class="w-full py-2.5 px-4 rounded-xl bg-ink-900 hover:bg-ink-700 text-cream-50 text-xs font-semibold flex items-center justify-center gap-2 shadow-sm transition active:scale-95">
+          <i data-lucide="scan-qr-code" class="w-4 h-4 text-champagne-400"></i>
+          <span>Masuk ke Pemindai Kupon</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- Top Navigation Header -->
   <header class="sticky top-0 z-40 glass-panel border-b border-champagne-400/30 shadow-sm no-print">
     <div class="max-w-6xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-3">
@@ -361,23 +426,23 @@
         </div>
         <div>
           <h1 class="font-serif text-lg sm:text-xl font-bold tracking-tight text-ink-900 leading-none">
-            Sita &amp; Charis <span class="text-champagne-600 font-normal italic">Coupon</span>
+            Charis &amp; Sita <span class="text-champagne-600 font-normal italic"> Souvenir Coupon</span>
           </h1>
           <p class="text-[11px] text-ink-500 flex items-center gap-1.5 mt-0.5">
             <span class="w-2 h-2 rounded-full bg-emerald-500 inline-block"></span>
-            <span>TM-SC &amp; KK-SC • Fast Batch Sync &amp; A3+ Print</span>
+            <span>Saturday, 12 December 2026</span>
           </p>
         </div>
       </div>
 
       <nav class="flex p-1 rounded-2xl bg-cream-200/80 border border-champagne-400/30">
-        <button id="tabBtnGenerator" onclick="switchTab('generator')" class="flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold transition bg-ink-900 text-cream-50 shadow-sm">
-          <i data-lucide="layers-plus" class="w-4 h-4 text-champagne-400"></i>
-          <span>Generate &amp; Cetak A3+</span>
-        </button>
-        <button id="tabBtnScanner" onclick="switchTab('scanner')" class="flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold transition text-ink-700 hover:text-ink-900">
-          <i data-lucide="scan-qr-code" class="w-4 h-4 text-champagne-600"></i>
+        <button id="tabBtnScanner" onclick="switchTab('scanner')" class="flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold transition bg-ink-900 text-cream-50 shadow-sm">
+          <i data-lucide="scan-qr-code" class="w-4 h-4 text-champagne-400"></i>
           <span>Pemindai &amp; Riwayat</span>
+        </button>
+        <button id="tabBtnGenerator" onclick="switchTab('generator')" class="flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold transition text-ink-700 hover:text-ink-900">
+          <i data-lucide="layers-plus" class="w-4 h-4 text-champagne-600"></i>
+          <span>Generate &amp; Cetak A3+</span>
         </button>
       </nav>
     </div>
@@ -426,266 +491,9 @@
     </section>
 
     <!-- ============================================================ -->
-    <!-- SECTION 1: GENERATOR KUPON MASSAL & PENGATURAN CETAK A3+       -->
+    <!-- SECTION 1 (HALAMAN AWAL): SCANNER, VALIDASI & RIWAYAT        -->
     <!-- ============================================================ -->
-    <section id="generatorSection" class="space-y-6">
-
-      <!-- Bar Sinkronisasi Cepat (Master & Riwayat) + Backup JSON -->
-      <div class="glass-panel rounded-3xl p-5 shadow-luxury flex flex-col lg:flex-row lg:items-center justify-between gap-4 no-print">
-        <div>
-          <h2 class="font-serif text-xl font-bold text-ink-900 flex items-center gap-2">
-            <i data-lucide="refresh-cw" class="w-5 h-5 text-champagne-600"></i>
-            <span>Sinkronisasi Cepat HP ↔amp; Laptop (Batch QR &amp; Teks)</span>
-          </h2>
-          <p class="text-xs text-ink-500 mt-0.5">
-            Otomatis terbagi per 75 data agar QR tidak padat &amp; cepat di-scan, plus sinkronisasi riwayat penukaran dua arah.
-          </p>
-        </div>
-        <div class="flex flex-wrap items-center gap-2">
-          <button onclick="openSyncQRModal('MASTER')" class="px-3.5 py-2 rounded-xl bg-champagne-500 hover:bg-champagne-600 text-white text-xs font-semibold flex items-center gap-1.5 shadow-sm transition active:scale-95">
-            <i data-lucide="qr-code" class="w-4 h-4"></i>
-            <span>QR Sync Kupon</span>
-          </button>
-          <button onclick="openSyncQRModal('REDEEMED')" class="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold flex items-center gap-1.5 shadow-sm transition active:scale-95">
-            <i data-lucide="history" class="w-4 h-4"></i>
-            <span>QR Sync Riwayat</span>
-          </button>
-          <button onclick="exportMasterJSON()" class="px-3 py-2 rounded-xl bg-cream-100 hover:bg-champagne-100 text-ink-900 border border-champagne-400/50 text-xs font-semibold flex items-center gap-1.5 transition">
-            <i data-lucide="file-json" class="w-4 h-4 text-champagne-600"></i>
-            <span>Backup JSON</span>
-          </button>
-          <label class="px-3 py-2 rounded-xl bg-cream-100 hover:bg-champagne-100 text-ink-900 border border-champagne-400/50 text-xs font-semibold flex items-center gap-1.5 cursor-pointer transition">
-            <i data-lucide="upload" class="w-4 h-4 text-champagne-600"></i>
-            <span>Import JSON</span>
-            <input type="file" accept=".json,application/json" onchange="importMasterJSON(event)" class="hidden" />
-          </label>
-          <button onclick="confirmClearMasterCoupons()" class="px-3 py-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-semibold flex items-center gap-1.5 transition">
-            <i data-lucide="trash-2" class="w-4 h-4"></i>
-            <span>Kosongkan DB</span>
-          </button>
-        </div>
-      </div>
-
-      <!-- Generate Massal 2 Kategori: Tamu Undangan (TM-SC-) & Keluarga Kerabat (KK-SC-) -->
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-5 no-print">
-        <div class="glass-panel rounded-3xl p-5 shadow-luxury border-t-4 border-t-champagne-500 space-y-4">
-          <div class="flex items-start justify-between gap-2">
-            <div>
-              <span class="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-champagne-100 text-champagne-600 border border-champagne-400/50">
-                Kategori 1 • Kode TM-SC-
-              </span>
-              <h2 class="font-serif text-2xl font-bold text-ink-900 mt-1.5">Tamu Undangan</h2>
-              <p class="text-xs text-ink-500 mt-0.5">Generate otomatis tanpa nama (contoh: <code class="font-mono font-bold">TM-SC-0001</code>).</p>
-            </div>
-            <div class="w-10 h-10 rounded-2xl bg-champagne-100 border border-champagne-400/50 flex items-center justify-center text-champagne-600">
-              <i data-lucide="users" class="w-5 h-5"></i>
-            </div>
-          </div>
-
-          <form onsubmit="handleGenerateByCategory(event, 'TAMU_UNDANGAN')" class="flex flex-col sm:flex-row gap-2.5">
-            <div class="flex-1">
-              <label for="qtyTamuUndangan" class="block text-[11px] font-semibold text-ink-700 mb-1">Jumlah Kupon Tamu Undangan</label>
-              <input id="qtyTamuUndangan" type="number" min="1" max="2000" value="100" required class="w-full rounded-xl bg-cream-50 border border-champagne-400/50 px-3.5 py-2 text-sm font-semibold text-ink-900 focus:outline-none focus:border-champagne-600" />
-            </div>
-            <div class="flex items-end">
-              <button type="submit" class="w-full sm:w-auto px-5 py-2 rounded-xl bg-ink-900 hover:bg-ink-700 text-cream-50 text-xs font-bold flex items-center justify-center gap-2 transition active:scale-95">
-                <i data-lucide="sparkles" class="w-4 h-4 text-champagne-400"></i>
-                <span>Generate</span>
-              </button>
-            </div>
-          </form>
-        </div>
-
-        <div class="glass-panel rounded-3xl p-5 shadow-luxury border-t-4 border-t-champagne-600 space-y-4">
-          <div class="flex items-start justify-between gap-2">
-            <div>
-              <span class="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-champagne-200/80 text-ink-900 border border-champagne-400/60">
-                Kategori 2 • Kode KK-SC-
-              </span>
-              <h2 class="font-serif text-2xl font-bold text-ink-900 mt-1.5">Keluarga Kerabat</h2>
-              <p class="text-xs text-ink-500 mt-0.5">Generate otomatis tanpa nama (contoh: <code class="font-mono font-bold">KK-SC-0001</code>).</p>
-            </div>
-            <div class="w-10 h-10 rounded-2xl bg-champagne-100 border border-champagne-400/50 flex items-center justify-center text-champagne-600">
-              <i data-lucide="crown" class="w-5 h-5"></i>
-            </div>
-          </div>
-
-          <form onsubmit="handleGenerateByCategory(event, 'KELUARGA_KERABAT')" class="flex flex-col sm:flex-row gap-2.5">
-            <div class="flex-1">
-              <label for="qtyKeluargaKerabat" class="block text-[11px] font-semibold text-ink-700 mb-1">Jumlah Kupon Keluarga Kerabat</label>
-              <input id="qtyKeluargaKerabat" type="number" min="1" max="2000" value="50" required class="w-full rounded-xl bg-cream-50 border border-champagne-400/50 px-3.5 py-2 text-sm font-semibold text-ink-900 focus:outline-none focus:border-champagne-600" />
-            </div>
-            <div class="flex items-end">
-              <button type="submit" class="w-full sm:w-auto px-5 py-2 rounded-xl bg-champagne-500 hover:bg-champagne-600 text-white text-xs font-bold flex items-center justify-center gap-2 transition active:scale-95">
-                <i data-lucide="plus-circle" class="w-4 h-4"></i>
-                <span>Generate</span>
-              </button>
-            </div>
-          </form>
-        </div>
-      </div>
-
-      <!-- Data Pengantin & Pilihan Background -->
-      <div class="glass-panel rounded-3xl p-5 shadow-luxury space-y-4 no-print">
-        <div class="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-champagne-400/25">
-          <div>
-            <h3 class="font-serif text-lg font-bold text-ink-900">1. Identitas Acara &amp; Pilihan Background Kupon</h3>
-            <p class="text-xs text-ink-500">Pilih gaya background bawaan atau unggah gambar sendiri, serta atur kecerahan lapisan teks.</p>
-          </div>
-          <span class="text-xs font-semibold px-3 py-1 rounded-full bg-champagne-100 border border-champagne-400/50 text-ink-900">
-            Total Kupon: <strong id="registeredCounterBadge">0</strong>
-          </span>
-        </div>
-
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div>
-            <label for="genCoupleNames" class="block text-xs font-semibold text-ink-700 mb-1">Nama Pasangan Pengantin</label>
-            <input id="genCoupleNames" type="text" value="Sita &amp; Charis" oninput="handleEventMetaChange()" class="w-full rounded-xl bg-cream-50 border border-champagne-400/40 px-3 py-2 text-xs text-ink-900 focus:outline-none focus:border-champagne-600" />
-          </div>
-
-          <div>
-            <label for="genEventDate" class="block text-xs font-semibold text-ink-700 mb-1">Tanggal Acara</label>
-            <input id="genEventDate" type="text" value="12 Desember 2026" oninput="handleEventMetaChange()" class="w-full rounded-xl bg-cream-50 border border-champagne-400/40 px-3 py-2 text-xs text-ink-900 focus:outline-none focus:border-champagne-600" />
-          </div>
-
-          <div>
-            <label for="bgThemeSelect" class="block text-xs font-semibold text-ink-700 mb-1">Pilihan Background Kupon</label>
-            <select id="bgThemeSelect" onchange="handleBgThemeChange()" class="w-full rounded-xl bg-cream-50 border border-champagne-400/40 px-3 py-2 text-xs font-semibold text-ink-900 focus:outline-none focus:border-champagne-600">
-              <option value="ivory">Ivory Classic (Bawaan)</option>
-              <option value="champagne">Champagne Gold Shimmer</option>
-              <option value="floral">Floral Cream Ornament</option>
-              <option value="silk">Warm Silk Beige</option>
-              <option value="custom">Upload Gambar Background Sendiri</option>
-            </select>
-          </div>
-        </div>
-
-        <div id="customBgControlBar" class="hidden rounded-2xl bg-cream-100/90 border border-champagne-400/40 p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <div class="flex flex-wrap items-center gap-2 flex-1">
-            <label class="px-3 py-1.5 rounded-xl bg-champagne-500 hover:bg-champagne-600 text-white text-xs font-semibold flex items-center gap-1.5 cursor-pointer transition">
-              <i data-lucide="image-plus" class="w-4 h-4"></i>
-              <span>Pilih File Gambar BG</span>
-              <input id="bgImageInput" type="file" accept="image/*" onchange="handleBgUpload(event)" class="hidden" />
-            </label>
-            <button type="button" onclick="clearCustomBg()" class="px-3 py-1.5 rounded-xl bg-white hover:bg-rose-50 border border-champagne-400/40 text-xs font-semibold text-ink-700 hover:text-rose-700 flex items-center gap-1">
-              <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
-              <span>Hapus Gambar</span>
-            </button>
-          </div>
-          <div class="flex items-center gap-2 text-xs text-ink-700">
-            <label for="bgOverlayRange" class="font-medium whitespace-nowrap">Kecerahan Lapisan Teks:</label>
-            <input id="bgOverlayRange" type="range" min="45" max="92" value="78" oninput="handleOverlayOpacityChange(this.value)" class="w-28 accent-champagne-600" />
-            <span id="bgOverlayValText" class="font-mono font-bold w-8">78%</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Pengaturan Cetak A3+ & Menu Pilihan Ukuran Kupon -->
-      <div class="glass-panel rounded-3xl p-5 shadow-luxury space-y-4 no-print">
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-champagne-400/25">
-          <div>
-            <h3 class="font-serif text-lg font-bold text-ink-900 flex items-center gap-2">
-              <i data-lucide="layout-grid" class="w-5 h-5 text-champagne-600"></i>
-              <span>2. Pengaturan Ukuran Kupon &amp; Layout Cetak A3+</span>
-            </h3>
-            <p class="text-xs text-ink-500">Pilih filter kategori, ukuran kupon fisik, dan kertas A3+ (31×47 cm / 30×47 cm); grid dan jumlah lembar dihitung otomatis.</p>
-          </div>
-          <button onclick="triggerPrintA3Plus()" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-champagne-500 to-champagne-600 hover:from-champagne-600 hover:to-champagne-700 text-white text-xs font-bold flex items-center gap-2 shadow-card transition active:scale-95">
-            <i data-lucide="printer" class="w-4 h-4"></i>
-            <span>Cetak Sekarang</span>
-          </button>
-        </div>
-
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3">
-          <div>
-            <label for="printFilterCat" class="block text-xs font-semibold text-ink-700 mb-1">Filter Kategori</label>
-            <select id="printFilterCat" onchange="renderAllCardsForPrint()" class="w-full rounded-xl bg-cream-50 border border-champagne-400/40 px-3 py-2 text-xs font-semibold text-ink-900">
-              <option value="ALL" selected>Semua Kategori</option>
-              <option value="TAMU_UNDANGAN">Tamu Undangan (TM-SC-)</option>
-              <option value="KELUARGA_KERABAT">Keluarga Kerabat (KK-SC-)</option>
-            </select>
-          </div>
-
-          <div>
-            <label for="printPaperSize" class="block text-xs font-semibold text-ink-700 mb-1">Ukuran Kertas</label>
-            <select id="printPaperSize" onchange="renderAllCardsForPrint()" class="w-full rounded-xl bg-cream-50 border border-champagne-400/40 px-3 py-2 text-xs text-ink-900">
-              <option value="310x470" selected>A3+ Super (31 × 47 cm) Landscape</option>
-              <option value="300x470">A3+ Standar (30 × 47 cm) Landscape</option>
-              <option value="297x420">A3 Standar (29.7 × 42 cm) Landscape</option>
-              <option value="210x297">A4 (21 × 29.7 cm) Landscape</option>
-            </select>
-          </div>
-
-          <div>
-            <label for="printCardPreset" class="block text-xs font-semibold text-ink-700 mb-1">Pilihan Ukuran Kupon</label>
-            <select id="printCardPreset" onchange="handleCardPresetChange()" class="w-full rounded-xl bg-cream-50 border border-champagne-400/40 px-3 py-2 text-xs font-semibold text-ink-900">
-              <option value="auto">Otomatis Maksimal A3+</option>
-              <option value="85x65">85 × 65 mm (Kompak)</option>
-              <option value="90x72" selected>90 × 72 mm (Standar QR Persegi)</option>
-              <option value="100x75">100 × 75 mm (Medium)</option>
-              <option value="110x82">110 × 82 mm (Besar Eksklusif)</option>
-              <option value="custom">Ukuran Kustom (mm)</option>
-            </select>
-          </div>
-
-          <div>
-            <label for="printMarginMm" class="block text-xs font-semibold text-ink-700 mb-1">Margin Kertas (mm)</label>
-            <input id="printMarginMm" type="number" min="4" max="25" value="10" oninput="renderAllCardsForPrint()" class="w-full rounded-xl bg-cream-50 border border-champagne-400/40 px-3 py-2 text-xs text-ink-900" />
-          </div>
-
-          <div>
-            <label for="printGapMm" class="block text-xs font-semibold text-ink-700 mb-1">Jarak Kupon (mm)</label>
-            <input id="printGapMm" type="number" min="1" max="15" value="4" oninput="renderAllCardsForPrint()" class="w-full rounded-xl bg-cream-50 border border-champagne-400/40 px-3 py-2 text-xs text-ink-900" />
-          </div>
-
-          <div class="flex flex-col justify-end">
-            <label class="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-cream-50 border border-champagne-400/40 text-xs font-medium text-ink-700 cursor-pointer">
-              <input id="printCutGuides" type="checkbox" onchange="recalculatePrintGrid()" class="rounded text-champagne-600" checked />
-              <span>Garis Potong</span>
-            </label>
-          </div>
-        </div>
-
-        <div id="customCardDimBar" class="hidden rounded-2xl bg-cream-100/90 border border-champagne-400/40 p-3 flex flex-wrap items-center gap-4 text-xs">
-          <span class="font-semibold text-ink-900">Dimensi Kupon Kustom:</span>
-          <label class="flex items-center gap-1.5">
-            <span class="text-ink-500">Lebar (mm):</span>
-            <input id="customCardWidthMm" type="number" min="65" max="160" value="95" oninput="renderAllCardsForPrint()" class="w-20 rounded-lg bg-white border border-champagne-400/50 px-2.5 py-1 font-mono text-ink-900" />
-          </label>
-          <label class="flex items-center gap-1.5">
-            <span class="text-ink-500">Tinggi (mm):</span>
-            <input id="customCardHeightMm" type="number" min="55" max="130" value="74" oninput="renderAllCardsForPrint()" class="w-20 rounded-lg bg-white border border-champagne-400/50 px-2.5 py-1 font-mono text-ink-900" />
-          </label>
-        </div>
-
-        <div id="printSummaryBanner" class="rounded-2xl bg-champagne-100/80 border border-champagne-400/40 px-4 py-3 text-xs text-ink-900 flex flex-wrap items-center justify-between gap-2">
-          <div id="printGridMetrics" class="font-medium">A3+ (31 × 47 cm) • Grid 5 × 4 (20 kupon/lembar) • Kartu 90mm × 72mm</div>
-          <div id="printSheetsEstimate" class="font-bold text-champagne-600">Dicetak: 0 Kupon • Estimasi: 0 Lembar</div>
-        </div>
-      </div>
-
-      <!-- Area Pratinjau & Cetak -->
-      <div id="printPreviewSection" class="glass-panel rounded-3xl p-5 shadow-luxury space-y-3">
-        <div class="flex flex-wrap items-center justify-between gap-2 no-print">
-          <div>
-            <h3 class="font-serif text-lg font-bold text-ink-900">Pratinjau Kartu Kupon (QR Persegi 1:1)</h3>
-            <p class="text-[11px] text-ink-500">Pastikan opsi <em>Background graphics</em> aktif di dialog cetak browser.</p>
-          </div>
-          <label class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-cream-100 border border-champagne-400/40 text-xs font-medium text-ink-700 cursor-pointer">
-            <input id="previewTrueScaleToggle" type="checkbox" onchange="togglePreviewScale(this.checked)" class="rounded text-champagne-600" />
-            <span>Pratinjau Ukuran Fisik (mm)</span>
-          </label>
-        </div>
-        <div id="print-area" class="cut-guide-enabled overflow-x-auto">
-          <div id="cardsGridContainer" class="print-sheet-grid"></div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ============================================================ -->
-    <!-- SECTION 2: SCANNER, VALIDASI & RIWAYAT PENUKARAN             -->
-    <!-- ============================================================ -->
-    <section id="scannerSection" class="hidden space-y-6">
+    <section id="scannerSection" class="space-y-6">
 
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
 
@@ -888,6 +696,263 @@
       </div>
     </section>
 
+    <!-- ============================================================ -->
+    <!-- SECTION 2: GENERATOR KUPON MASSAL & PENGATURAN CETAK A3+       -->
+    <!-- ============================================================ -->
+    <section id="generatorSection" class="hidden space-y-6">
+
+      <!-- Bar Sinkronisasi Cepat (Master & Riwayat) + Backup JSON -->
+      <div class="glass-panel rounded-3xl p-5 shadow-luxury flex flex-col lg:flex-row lg:items-center justify-between gap-4 no-print">
+        <div>
+          <h2 class="font-serif text-xl font-bold text-ink-900 flex items-center gap-2">
+            <i data-lucide="refresh-cw" class="w-5 h-5 text-champagne-600"></i>
+            <span>Sinkronisasi Cepat HP ↔amp; Laptop (Batch QR &amp; Teks)</span>
+          </h2>
+          <p class="text-xs text-ink-500 mt-0.5">
+            Otomatis terbagi per 75 data agar QR tidak padat &amp; cepat di-scan, plus sinkronisasi riwayat penukaran dua arah.
+          </p>
+        </div>
+        <div class="flex flex-wrap items-center gap-2">
+          <button onclick="openSyncQRModal('MASTER')" class="px-3.5 py-2 rounded-xl bg-champagne-500 hover:bg-champagne-600 text-white text-xs font-semibold flex items-center gap-1.5 shadow-sm transition active:scale-95">
+            <i data-lucide="qr-code" class="w-4 h-4"></i>
+            <span>QR Sync Kupon</span>
+          </button>
+          <button onclick="openSyncQRModal('REDEEMED')" class="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold flex items-center gap-1.5 shadow-sm transition active:scale-95">
+            <i data-lucide="history" class="w-4 h-4"></i>
+            <span>QR Sync Riwayat</span>
+          </button>
+          <button onclick="exportMasterJSON()" class="px-3 py-2 rounded-xl bg-cream-100 hover:bg-champagne-100 text-ink-900 border border-champagne-400/50 text-xs font-semibold flex items-center gap-1.5 transition">
+            <i data-lucide="file-json" class="w-4 h-4 text-champagne-600"></i>
+            <span>Backup JSON</span>
+          </button>
+          <label class="px-3 py-2 rounded-xl bg-cream-100 hover:bg-champagne-100 text-ink-900 border border-champagne-400/50 text-xs font-semibold flex items-center gap-1.5 cursor-pointer transition">
+            <i data-lucide="upload" class="w-4 h-4 text-champagne-600"></i>
+            <span>Import JSON</span>
+            <input type="file" accept=".json,application/json" onchange="importMasterJSON(event)" class="hidden" />
+          </label>
+          <button onclick="confirmClearMasterCoupons()" class="px-3 py-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-semibold flex items-center gap-1.5 transition">
+            <i data-lucide="trash-2" class="w-4 h-4"></i>
+            <span>Kosongkan DB</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Generate Massal 2 Kategori: Tamu Undangan (TM-SC-) & Keluarga Kerabat (KK-SC-) -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-5 no-print">
+        <div class="glass-panel rounded-3xl p-5 shadow-luxury border-t-4 border-t-champagne-500 space-y-4">
+          <div class="flex items-start justify-between gap-2">
+            <div>
+              <span class="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-champagne-100 text-champagne-600 border border-champagne-400/50">
+                Kategori 1 • Kode TM-SC-
+              </span>
+              <h2 class="font-serif text-2xl font-bold text-ink-900 mt-1.5">Tamu Undangan</h2>
+              <p class="text-xs text-ink-500 mt-0.5">Generate otomatis tanpa nama (contoh: <code class="font-mono font-bold">TM-SC-0001</code>).</p>
+            </div>
+            <div class="w-10 h-10 rounded-2xl bg-champagne-100 border border-champagne-400/50 flex items-center justify-center text-champagne-600">
+              <i data-lucide="users" class="w-5 h-5"></i>
+            </div>
+          </div>
+
+          <form onsubmit="handleGenerateByCategory(event, 'TAMU_UNDANGAN')" class="flex flex-col sm:flex-row gap-2.5">
+            <div class="flex-1">
+              <label for="qtyTamuUndangan" class="block text-[11px] font-semibold text-ink-700 mb-1">Jumlah Kupon Tamu Undangan</label>
+              <input id="qtyTamuUndangan" type="number" min="1" max="2000" value="100" required class="w-full rounded-xl bg-cream-50 border border-champagne-400/50 px-3.5 py-2 text-sm font-semibold text-ink-900 focus:outline-none focus:border-champagne-600" />
+            </div>
+            <div class="flex items-end">
+              <button type="submit" class="w-full sm:w-auto px-5 py-2 rounded-xl bg-ink-900 hover:bg-ink-700 text-cream-50 text-xs font-bold flex items-center justify-center gap-2 transition active:scale-95">
+                <i data-lucide="sparkles" class="w-4 h-4 text-champagne-400"></i>
+                <span>Generate</span>
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <div class="glass-panel rounded-3xl p-5 shadow-luxury border-t-4 border-t-champagne-600 space-y-4">
+          <div class="flex items-start justify-between gap-2">
+            <div>
+              <span class="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-champagne-200/80 text-ink-900 border border-champagne-400/60">
+                Kategori 2 • Kode KK-SC-
+              </span>
+              <h2 class="font-serif text-2xl font-bold text-ink-900 mt-1.5">Keluarga Kerabat</h2>
+              <p class="text-xs text-ink-500 mt-0.5">Generate otomatis tanpa nama (contoh: <code class="font-mono font-bold">KK-SC-0001</code>).</p>
+            </div>
+            <div class="w-10 h-10 rounded-2xl bg-champagne-100 border border-champagne-400/50 flex items-center justify-center text-champagne-600">
+              <i data-lucide="crown" class="w-5 h-5"></i>
+            </div>
+          </div>
+
+          <form onsubmit="handleGenerateByCategory(event, 'KELUARGA_KERABAT')" class="flex flex-col sm:flex-row gap-2.5">
+            <div class="flex-1">
+              <label for="qtyKeluargaKerabat" class="block text-[11px] font-semibold text-ink-700 mb-1">Jumlah Kupon Keluarga Kerabat</label>
+              <input id="qtyKeluargaKerabat" type="number" min="1" max="2000" value="50" required class="w-full rounded-xl bg-cream-50 border border-champagne-400/50 px-3.5 py-2 text-sm font-semibold text-ink-900 focus:outline-none focus:border-champagne-600" />
+            </div>
+            <div class="flex items-end">
+              <button type="submit" class="w-full sm:w-auto px-5 py-2 rounded-xl bg-champagne-500 hover:bg-champagne-600 text-white text-xs font-bold flex items-center justify-center gap-2 transition active:scale-95">
+                <i data-lucide="plus-circle" class="w-4 h-4"></i>
+                <span>Generate</span>
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Data Pengantin & Pilihan Background -->
+      <div class="glass-panel rounded-3xl p-5 shadow-luxury space-y-4 no-print">
+        <div class="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-champagne-400/25">
+          <div>
+            <h3 class="font-serif text-lg font-bold text-ink-900">1. Identitas Acara &amp; Pilihan Background Kupon</h3>
+            <p class="text-xs text-ink-500">Pilih gaya background bawaan atau unggah gambar sendiri, serta atur kecerahan lapisan teks.</p>
+          </div>
+          <span class="text-xs font-semibold px-3 py-1 rounded-full bg-champagne-100 border border-champagne-400/50 text-ink-900">
+            Total Kupon: <strong id="registeredCounterBadge">0</strong>
+          </span>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div>
+            <label for="genCoupleNames" class="block text-xs font-semibold text-ink-700 mb-1">Nama Pasangan Pengantin</label>
+            <input id="genCoupleNames" type="text" value="Charis &amp; Sita" oninput="handleEventMetaChange()" class="w-full rounded-xl bg-cream-50 border border-champagne-400/40 px-3 py-2 text-xs text-ink-900 focus:outline-none focus:border-champagne-600" />
+          </div>
+
+          <div>
+            <label for="genEventDate" class="block text-xs font-semibold text-ink-700 mb-1">Tanggal Acara</label>
+            <input id="genEventDate" type="text" value="12 Desember 2026" oninput="handleEventMetaChange()" class="w-full rounded-xl bg-cream-50 border border-champagne-400/40 px-3 py-2 text-xs text-ink-900 focus:outline-none focus:border-champagne-600" />
+          </div>
+
+          <div>
+            <label for="bgThemeSelect" class="block text-xs font-semibold text-ink-700 mb-1">Pilihan Background Kupon</label>
+            <select id="bgThemeSelect" onchange="handleBgThemeChange()" class="w-full rounded-xl bg-cream-50 border border-champagne-400/40 px-3 py-2 text-xs font-semibold text-ink-900 focus:outline-none focus:border-champagne-600">
+              <option value="ivory">Ivory Classic (Bawaan)</option>
+              <option value="champagne">Champagne Gold Shimmer</option>
+              <option value="floral">Floral Cream Ornament</option>
+              <option value="silk">Warm Silk Beige</option>
+              <option value="custom">Upload Gambar Background Sendiri</option>
+            </select>
+          </div>
+        </div>
+
+        <div id="customBgControlBar" class="hidden rounded-2xl bg-cream-100/90 border border-champagne-400/40 p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div class="flex flex-wrap items-center gap-2 flex-1">
+            <label class="px-3 py-1.5 rounded-xl bg-champagne-500 hover:bg-champagne-600 text-white text-xs font-semibold flex items-center gap-1.5 cursor-pointer transition">
+              <i data-lucide="image-plus" class="w-4 h-4"></i>
+              <span>Pilih File Gambar BG</span>
+              <input id="bgImageInput" type="file" accept="image/*" onchange="handleBgUpload(event)" class="hidden" />
+            </label>
+            <button type="button" onclick="clearCustomBg()" class="px-3 py-1.5 rounded-xl bg-white hover:bg-rose-50 border border-champagne-400/40 text-xs font-semibold text-ink-700 hover:text-rose-700 flex items-center gap-1">
+              <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+              <span>Hapus Gambar</span>
+            </button>
+          </div>
+          <div class="flex items-center gap-2 text-xs text-ink-700">
+            <label for="bgOverlayRange" class="font-medium whitespace-nowrap">Kecerahan Lapisan Teks:</label>
+            <input id="bgOverlayRange" type="range" min="45" max="92" value="78" oninput="handleOverlayOpacityChange(this.value)" class="w-28 accent-champagne-600" />
+            <span id="bgOverlayValText" class="font-mono font-bold w-8">78%</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pengaturan Cetak A3+ & Menu Pilihan Ukuran Kupon -->
+      <div class="glass-panel rounded-3xl p-5 shadow-luxury space-y-4 no-print">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-champagne-400/25">
+          <div>
+            <h3 class="font-serif text-lg font-bold text-ink-900 flex items-center gap-2">
+              <i data-lucide="layout-grid" class="w-5 h-5 text-champagne-600"></i>
+              <span>2. Pengaturan Ukuran Kupon &amp; Layout Cetak A3+</span>
+            </h3>
+            <p class="text-xs text-ink-500">Pilih filter kategori, ukuran kupon fisik, dan kertas A3+ (31×47 cm / 30×47 cm); grid dan jumlah lembar dihitung otomatis.</p>
+          </div>
+          <button onclick="triggerPrintA3Plus()" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-champagne-500 to-champagne-600 hover:from-champagne-600 hover:to-champagne-700 text-white text-xs font-bold flex items-center gap-2 shadow-card transition active:scale-95">
+            <i data-lucide="printer" class="w-4 h-4"></i>
+            <span>Cetak Sekarang</span>
+          </button>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3">
+          <div>
+            <label for="printFilterCat" class="block text-xs font-semibold text-ink-700 mb-1">Filter Kategori</label>
+            <select id="printFilterCat" onchange="renderAllCardsForPrint()" class="w-full rounded-xl bg-cream-50 border border-champagne-400/40 px-3 py-2 text-xs font-semibold text-ink-900">
+              <option value="ALL" selected>Semua Kategori</option>
+              <option value="TAMU_UNDANGAN">Tamu Undangan (TM-SC-)</option>
+              <option value="KELUARGA_KERABAT">Keluarga Kerabat (KK-SC-)</option>
+            </select>
+          </div>
+
+          <div>
+            <label for="printPaperSize" class="block text-xs font-semibold text-ink-700 mb-1">Ukuran Kertas</label>
+            <select id="printPaperSize" onchange="renderAllCardsForPrint()" class="w-full rounded-xl bg-cream-50 border border-champagne-400/40 px-3 py-2 text-xs text-ink-900">
+              <option value="310x470" selected>A3+ Super (31 × 47 cm) Landscape</option>
+              <option value="300x470">A3+ Standar (30 × 47 cm) Landscape</option>
+              <option value="297x420">A3 Standar (29.7 × 42 cm) Landscape</option>
+              <option value="210x297">A4 (21 × 29.7 cm) Landscape</option>
+            </select>
+          </div>
+
+          <div>
+            <label for="printCardPreset" class="block text-xs font-semibold text-ink-700 mb-1">Pilihan Ukuran Kupon</label>
+            <select id="printCardPreset" onchange="handleCardPresetChange()" class="w-full rounded-xl bg-cream-50 border border-champagne-400/40 px-3 py-2 text-xs font-semibold text-ink-900">
+              <option value="auto">Otomatis Maksimal A3+</option>
+              <option value="85x65">85 × 65 mm (Kompak)</option>
+              <option value="90x72" selected>90 × 72 mm (Standar QR Persegi)</option>
+              <option value="100x75">100 × 75 mm (Medium)</option>
+              <option value="110x82">110 × 82 mm (Besar Eksklusif)</option>
+              <option value="custom">Ukuran Kustom (mm)</option>
+            </select>
+          </div>
+
+          <div>
+            <label for="printMarginMm" class="block text-xs font-semibold text-ink-700 mb-1">Margin Kertas (mm)</label>
+            <input id="printMarginMm" type="number" min="4" max="25" value="10" oninput="renderAllCardsForPrint()" class="w-full rounded-xl bg-cream-50 border border-champagne-400/40 px-3 py-2 text-xs text-ink-900" />
+          </div>
+
+          <div>
+            <label for="printGapMm" class="block text-xs font-semibold text-ink-700 mb-1">Jarak Kupon (mm)</label>
+            <input id="printGapMm" type="number" min="1" max="15" value="4" oninput="renderAllCardsForPrint()" class="w-full rounded-xl bg-cream-50 border border-champagne-400/40 px-3 py-2 text-xs text-ink-900" />
+          </div>
+
+          <div class="flex flex-col justify-end">
+            <label class="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-cream-50 border border-champagne-400/40 text-xs font-medium text-ink-700 cursor-pointer">
+              <input id="printCutGuides" type="checkbox" onchange="recalculatePrintGrid()" class="rounded text-champagne-600" checked />
+              <span>Garis Potong</span>
+            </label>
+          </div>
+        </div>
+
+        <div id="customCardDimBar" class="hidden rounded-2xl bg-cream-100/90 border border-champagne-400/40 p-3 flex flex-wrap items-center gap-4 text-xs">
+          <span class="font-semibold text-ink-900">Dimensi Kupon Kustom:</span>
+          <label class="flex items-center gap-1.5">
+            <span class="text-ink-500">Lebar (mm):</span>
+            <input id="customCardWidthMm" type="number" min="65" max="160" value="95" oninput="renderAllCardsForPrint()" class="w-20 rounded-lg bg-white border border-champagne-400/50 px-2.5 py-1 font-mono text-ink-900" />
+          </label>
+          <label class="flex items-center gap-1.5">
+            <span class="text-ink-500">Tinggi (mm):</span>
+            <input id="customCardHeightMm" type="number" min="55" max="130" value="74" oninput="renderAllCardsForPrint()" class="w-20 rounded-lg bg-white border border-champagne-400/50 px-2.5 py-1 font-mono text-ink-900" />
+          </label>
+        </div>
+
+        <div id="printSummaryBanner" class="rounded-2xl bg-champagne-100/80 border border-champagne-400/40 px-4 py-3 text-xs text-ink-900 flex flex-wrap items-center justify-between gap-2">
+          <div id="printGridMetrics" class="font-medium">A3+ (31 × 47 cm) • Grid 5 × 4 (20 kupon/lembar) • Kartu 90mm × 72mm</div>
+          <div id="printSheetsEstimate" class="font-bold text-champagne-600">Dicetak: 0 Kupon • Estimasi: 0 Lembar</div>
+        </div>
+      </div>
+
+      <!-- Area Pratinjau & Cetak -->
+      <div id="printPreviewSection" class="glass-panel rounded-3xl p-5 shadow-luxury space-y-3">
+        <div class="flex flex-wrap items-center justify-between gap-2 no-print">
+          <div>
+            <h3 class="font-serif text-lg font-bold text-ink-900">Pratinjau Kartu Kupon (QR Persegi 1:1)</h3>
+            <p class="text-[11px] text-ink-500">Pastikan opsi <em>Background graphics</em> aktif di dialog cetak browser.</p>
+          </div>
+          <label class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-cream-100 border border-champagne-400/40 text-xs font-medium text-ink-700 cursor-pointer">
+            <input id="previewTrueScaleToggle" type="checkbox" onchange="togglePreviewScale(this.checked)" class="rounded text-champagne-600" />
+            <span>Pratinjau Ukuran Fisik (mm)</span>
+          </label>
+        </div>
+        <div id="print-area" class="cut-guide-enabled overflow-x-auto">
+          <div id="cardsGridContainer" class="print-sheet-grid"></div>
+        </div>
+      </div>
+    </section>
+
   </main>
 
   <!-- ============================================================ -->
@@ -979,6 +1044,7 @@
     let currentSyncRawString = '';
     let customBackgroundDataUrl = '';
     let dynamicPrintStyleEl = null;
+    let onboardingTimer = null;
 
     const isLowPowerDevice = (() => {
       const reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -997,6 +1063,69 @@
       try { localStorage.removeItem(key); } catch (e) {}
     }
 
+    // ============================================================
+    // ONBOARDING LOADING SCREEN
+    // ============================================================
+    function startOnboardingSequence() {
+      const splash = document.getElementById('onboardingSplash');
+      const bar = document.getElementById('onboardingProgressBar');
+      const statusTxt = document.getElementById('onboardingStatusText');
+      const pctTxt = document.getElementById('onboardingPercentText');
+
+      if (!splash) return;
+
+      const steps = [
+        { pct: 45, text: 'Memuat database kupon & riwayat...' },
+        { pct: 82, text: 'Menyiapkan pemindai QR & validasi...' },
+        { pct: 100, text: 'Siap digunakan!' }
+      ];
+
+      let stepIdx = 0;
+      const intervalMs = isLowPowerDevice ? 220 : 340;
+
+      onboardingTimer = setInterval(() => {
+        if (stepIdx < steps.length) {
+          const current = steps[stepIdx];
+          if (bar) bar.style.width = `${current.pct}%`;
+          if (statusTxt) statusTxt.textContent = current.text;
+          if (pctTxt) pctTxt.textContent = `${current.pct}%`;
+          stepIdx++;
+        } else {
+          clearInterval(onboardingTimer);
+          onboardingTimer = null;
+          setTimeout(dismissOnboarding, 260);
+        }
+      }, intervalMs);
+    }
+
+    function dismissOnboarding() {
+      if (onboardingTimer) {
+        clearInterval(onboardingTimer);
+        onboardingTimer = null;
+      }
+      const splash = document.getElementById('onboardingSplash');
+      if (!splash || splash.classList.contains('is-hidden')) return;
+
+      splash.classList.add('is-hidden');
+      setTimeout(() => {
+        splash.style.display = 'none';
+      }, 480);
+
+      if (!isLowPowerDevice && window.gsap) {
+        gsap.from('header, main > section:not(.hidden) .glass-panel', {
+          y: 12,
+          opacity: 0,
+          duration: 0.42,
+          stagger: 0.05,
+          ease: 'power2.out',
+          clearProps: 'transform'
+        });
+      }
+    }
+
+    // ============================================================
+    // HELPERS & DATA STORAGE
+    // ============================================================
     function normalizeCategory(rawCat, code = '') {
       const upperCat = String(rawCat || '').trim().toUpperCase();
       const upperCode = String(code || '').trim().toUpperCase();
@@ -1827,7 +1956,7 @@
       const gridInfo = recalculatePrintGrid();
       const filteredList = getFilteredCouponsForPrint();
       const container = document.getElementById('cardsGridContainer');
-      const coupleNames = document.getElementById('genCoupleNames').value.trim() || 'Sita & Charis';
+      const coupleNames = document.getElementById('genCoupleNames').value.trim() || 'Charis & Sita';
       const eventDate = document.getElementById('genEventDate').value.trim() || '12 Desember 2026';
       const bgTheme = document.getElementById('bgThemeSelect').value;
 
@@ -1862,8 +1991,7 @@
           <div class="voucher-inner-frame">
             <div class="w-full">
               <div class="flex items-center justify-between text-[7px] uppercase tracking-[0.16em] text-champagne-600 font-bold">
-                <span>${escapeHtml(catTag)}</span>
-                <span>KUPON ACARA</span>
+                <span>KUPON PENUKARAN SOUVENIR</span>
               </div>
               <div class="h-[1px] w-full bg-gradient-to-r from-transparent via-champagne-500/65 to-transparent my-0.5"></div>
             </div>
@@ -1929,7 +2057,7 @@
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `database_kupon_sita_charis_${Date.now()}.json`;
+      a.download = `database_kupon_charis_sita_${Date.now()}.json`;
       a.click();
       URL.revokeObjectURL(url);
       showToast('File backup JSON berhasil diunduh.', 'success');
@@ -2071,7 +2199,7 @@
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `riwayat_kupon_sita_charis_${Date.now()}.csv`;
+      a.download = `riwayat_kupon_charis_sita_${Date.now()}.csv`;
       a.click();
       URL.revokeObjectURL(url);
       showToast('Laporan CSV berhasil diunduh.', 'success');
@@ -2155,17 +2283,7 @@
       updateDashboardMetrics();
       renderHistoryTable();
       renderAllCardsForPrint();
-
-      if (!isLowPowerDevice && window.gsap) {
-        gsap.from('header, main > section:not(.hidden) .glass-panel', {
-          y: 12,
-          opacity: 0,
-          duration: 0.45,
-          stagger: 0.06,
-          ease: 'power2.out',
-          clearProps: 'transform'
-        });
-      }
+      startOnboardingSequence();
     });
   </script>
 </body>
