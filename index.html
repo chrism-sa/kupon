@@ -365,7 +365,7 @@
           </h1>
           <p class="text-[11px] text-ink-500 flex items-center gap-1.5 mt-0.5">
             <span class="w-2 h-2 rounded-full bg-emerald-500 inline-block"></span>
-            <span>TM-SC &amp; KK-SC • A3+ Print &amp; High-Clarity QR</span>
+            <span>TM-SC &amp; KK-SC • Fast Batch Sync &amp; A3+ Print</span>
           </p>
         </div>
       </div>
@@ -430,21 +430,25 @@
     <!-- ============================================================ -->
     <section id="generatorSection" class="space-y-6">
 
-      <!-- Bar Sinkronisasi & Backup/Restore JSON -->
+      <!-- Bar Sinkronisasi Cepat (Master & Riwayat) + Backup JSON -->
       <div class="glass-panel rounded-3xl p-5 shadow-luxury flex flex-col lg:flex-row lg:items-center justify-between gap-4 no-print">
         <div>
           <h2 class="font-serif text-xl font-bold text-ink-900 flex items-center gap-2">
-            <i data-lucide="share-2" class="w-5 h-5 text-champagne-600"></i>
-            <span>Sinkronisasi Database ke HP Panitia &amp; Cadangan</span>
+            <i data-lucide="refresh-cw" class="w-5 h-5 text-champagne-600"></i>
+            <span>Sinkronisasi Cepat HP ↔amp; Laptop (Batch QR &amp; Teks)</span>
           </h2>
           <p class="text-xs text-ink-500 mt-0.5">
-            Transfer kupon dari laptop ke HP via QR Sync, atau simpan/muat ulang file JSON.
+            Otomatis terbagi per 75 data agar QR tidak padat &amp; cepat di-scan, plus sinkronisasi riwayat penukaran dua arah.
           </p>
         </div>
         <div class="flex flex-wrap items-center gap-2">
-          <button onclick="openSyncQRModal()" class="px-4 py-2 rounded-xl bg-champagne-500 hover:bg-champagne-600 text-white text-xs font-semibold flex items-center gap-1.5 shadow-sm transition active:scale-95">
+          <button onclick="openSyncQRModal('MASTER')" class="px-3.5 py-2 rounded-xl bg-champagne-500 hover:bg-champagne-600 text-white text-xs font-semibold flex items-center gap-1.5 shadow-sm transition active:scale-95">
             <i data-lucide="qr-code" class="w-4 h-4"></i>
-            <span>Tampilkan QR Sync</span>
+            <span>QR Sync Kupon</span>
+          </button>
+          <button onclick="openSyncQRModal('REDEEMED')" class="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold flex items-center gap-1.5 shadow-sm transition active:scale-95">
+            <i data-lucide="history" class="w-4 h-4"></i>
+            <span>QR Sync Riwayat</span>
           </button>
           <button onclick="exportMasterJSON()" class="px-3 py-2 rounded-xl bg-cream-100 hover:bg-champagne-100 text-ink-900 border border-champagne-400/50 text-xs font-semibold flex items-center gap-1.5 transition">
             <i data-lucide="file-json" class="w-4 h-4 text-champagne-600"></i>
@@ -712,7 +716,7 @@
               </div>
               <p class="text-sm font-bold text-ink-900">Kamera Siap Diaktifkan</p>
               <p class="text-xs text-ink-500 mt-1 max-w-xs">
-                Tekan <strong>Mulai Scan</strong> untuk memindai kupon <code class="font-mono">TM-SC-</code> / <code class="font-mono">KK-SC-</code> atau scan QR Sync dari laptop.
+                Tekan <strong>Mulai Scan</strong> untuk memindai kupon <code class="font-mono">TM-SC-</code> / <code class="font-mono">KK-SC-</code> atau scan Batch QR Sync.
               </p>
               <button onclick="startScanner()" class="mt-4 px-4 py-2.5 rounded-xl bg-ink-900 hover:bg-ink-700 text-cream-50 text-xs font-semibold flex items-center gap-2 transition active:scale-95">
                 <i data-lucide="camera" class="w-4 h-4 text-champagne-400"></i>
@@ -845,6 +849,10 @@
             <p class="text-xs text-ink-500">Daftar kode kupon yang sudah ditukarkan pada perangkat ini.</p>
           </div>
           <div class="flex flex-wrap items-center gap-2">
+            <button onclick="openSyncQRModal('REDEEMED')" class="px-3 py-1.5 rounded-xl bg-champagne-100 hover:bg-champagne-200 text-ink-900 border border-champagne-400/50 text-xs font-semibold flex items-center gap-1.5 transition">
+              <i data-lucide="qr-code" class="w-3.5 h-3.5 text-champagne-600"></i>
+              <span>QR Sync Riwayat</span>
+            </button>
             <div class="relative">
               <i data-lucide="search" class="w-3.5 h-3.5 text-ink-500 absolute left-3 top-1/2 -translate-y-1/2"></i>
               <input id="searchInput" type="text" oninput="renderHistoryTable()" placeholder="Cari kode atau kategori..." class="pl-8 pr-3 py-1.5 rounded-xl bg-cream-50 border border-champagne-400/40 text-xs text-ink-900 focus:outline-none focus:border-champagne-600" />
@@ -883,29 +891,42 @@
   </main>
 
   <!-- ============================================================ -->
-  <!-- MODAL: QR SYNC DATABASE                                      -->
+  <!-- MODAL: BATCH QR SYNC CEPAT (MASTER & RIWAYAT)                -->
   <!-- ============================================================ -->
   <div id="syncQRModal" class="hidden fixed inset-0 z-50 bg-ink-900/70 backdrop-blur-sm flex items-center justify-center p-4 no-print">
     <div class="bg-cream-50 border border-champagne-400/50 rounded-3xl max-w-sm w-full p-6 shadow-luxury text-center space-y-4">
       <div class="flex items-center justify-between">
-        <h3 class="font-serif text-lg font-bold text-ink-900 flex items-center gap-2">
+        <h3 id="syncModalTitle" class="font-serif text-lg font-bold text-ink-900 flex items-center gap-2">
           <i data-lucide="qr-code" class="w-4 h-4 text-champagne-600"></i>
-          <span>Scan QR Sync di HP</span>
+          <span>QR Sync Cepat</span>
         </h3>
         <button onclick="closeSyncQRModal()" class="p-1 rounded-lg text-ink-500 hover:text-ink-900">
           <i data-lucide="x" class="w-5 h-5"></i>
         </button>
       </div>
+
       <div class="p-3 rounded-2xl bg-white border border-champagne-400/60 inline-flex items-center justify-center">
         <div id="syncQRContainer"></div>
       </div>
-      <p id="syncQRCountLabel" class="text-xs font-semibold text-ink-900">0 Kupon Siap Disinkronkan</p>
-      <p class="text-[11px] text-ink-500">
-        Buka tab <strong>Pemindai &amp; Riwayat</strong> pada HP panitia lalu arahkan kamera ke QR ini.
+
+      <div class="flex items-center justify-center gap-3">
+        <button id="btnPrevSyncBatch" type="button" onclick="stepSyncBatch(-1)" class="px-3 py-1.5 rounded-xl bg-cream-200 hover:bg-cream-300 text-ink-900 text-xs font-semibold disabled:opacity-40 transition">
+          &lt; Prev
+        </button>
+        <span id="syncBatchIndicator" class="text-xs font-mono font-bold text-ink-900">Batch 1 / 1</span>
+        <button id="btnNextSyncBatch" type="button" onclick="stepSyncBatch(1)" class="px-3 py-1.5 rounded-xl bg-cream-200 hover:bg-cream-300 text-ink-900 text-xs font-semibold disabled:opacity-40 transition">
+          Next &gt;
+        </button>
+      </div>
+
+      <p id="syncQRCountLabel" class="text-xs font-semibold text-ink-900">0 Data Siap Disinkronkan</p>
+      <p id="syncQRSubHint" class="text-[11px] text-ink-500">
+        Scan QR batch ini dari kamera HP/Laptop; data otomatis digabung tanpa menghapus data lama.
       </p>
+
       <button onclick="copySyncPayloadText()" class="w-full py-2.5 rounded-xl bg-champagne-100 hover:bg-champagne-200 text-ink-900 border border-champagne-400/50 text-xs font-semibold flex items-center justify-center gap-1.5 transition">
         <i data-lucide="copy" class="w-4 h-4 text-champagne-600"></i>
-        <span>Salin Teks Sync Manual</span>
+        <span>Salin Teks Batch Ini</span>
       </button>
     </div>
   </div>
@@ -946,10 +967,15 @@
     const STORAGE_KEY_COUPLE = 'wedding_couple_names_v1';
     const STORAGE_KEY_DATE = 'wedding_event_date_v1';
 
+    const SYNC_BATCH_SIZE = 75;
+
     let html5QrCode = null;
     let isScannerRunning = false;
     let currentFacingMode = 'environment';
     let scanCooldown = false;
+    let syncMode = 'MASTER';
+    let syncBatches = [];
+    let currentSyncBatchIndex = 0;
     let currentSyncRawString = '';
     let customBackgroundDataUrl = '';
     let dynamicPrintStyleEl = null;
@@ -987,7 +1013,8 @@
     function getRedeemedList() {
       try {
         const raw = safeStorageGet(STORAGE_KEY_REDEEMED);
-        return raw ? JSON.parse(raw) : [];
+        const list = raw ? JSON.parse(raw) : [];
+        return Array.isArray(list) ? list : [];
       } catch (e) { return []; }
     }
 
@@ -1110,36 +1137,110 @@
     }
 
     // ============================================================
-    // QR SYNC DATABASE & PARSER
+    // BATCH QR SYNC CEPAT (MASTER & RIWAYAT — MERGE AMAN)
     // ============================================================
-    function openSyncQRModal() {
-      const masterList = getRegisteredCoupons();
-      if (masterList.length === 0) {
-        showToast('Database kupon masih kosong.', 'warning');
-        return;
+    function buildSyncBatches(mode) {
+      if (mode === 'REDEEMED') {
+        const redeemed = getRedeemedList();
+        if (redeemed.length === 0) return [];
+        const chunks = [];
+        for (let i = 0; i < redeemed.length; i += SYNC_BATCH_SIZE) {
+          const slice = redeemed.slice(i, i + SYNC_BATCH_SIZE);
+          const rows = slice.map((r) => {
+            const code = sanitizeSyncField(r.code).toUpperCase();
+            const catFlag = normalizeCategory(r.category, code) === 'KELUARGA_KERABAT' ? 'KK' : 'TM';
+            const dt = sanitizeSyncField(r.date || '');
+            const tm = sanitizeSyncField(r.time || '');
+            return `${code}~${catFlag}~${dt}~${tm}`;
+          });
+          chunks.push({
+            payload: 'WDD_REDEEM_SYNC|' + rows.join('|'),
+            count: slice.length
+          });
+        }
+        return chunks;
       }
 
-      const rows = masterList.map((c) => {
-        const code = sanitizeSyncField(c.code).toUpperCase();
-        const catFlag = c.category === 'KELUARGA_KERABAT' ? 'KK' : 'TM';
-        return `${code}~${catFlag}`;
-      });
+      const master = getRegisteredCoupons();
+      if (master.length === 0) return [];
+      const chunks = [];
+      for (let i = 0; i < master.length; i += SYNC_BATCH_SIZE) {
+        const slice = master.slice(i, i + SYNC_BATCH_SIZE);
+        const rows = slice.map((c) => {
+          const code = sanitizeSyncField(c.code).toUpperCase();
+          const catFlag = c.category === 'KELUARGA_KERABAT' ? 'KK' : 'TM';
+          return `${code}~${catFlag}`;
+        });
+        chunks.push({
+          payload: 'WDD_SYNC|' + rows.join('|'),
+          count: slice.length
+        });
+      }
+      return chunks;
+    }
 
-      currentSyncRawString = 'WDD_SYNC|' + rows.join('|');
+    function openSyncQRModal(mode = 'MASTER') {
+      syncMode = mode;
+      syncBatches = buildSyncBatches(mode);
+      if (syncBatches.length === 0) {
+        showToast(
+          mode === 'REDEEMED'
+            ? 'Belum ada riwayat penukaran untuk disinkronkan.'
+            : 'Database kupon masih kosong.',
+          'warning'
+        );
+        return;
+      }
+      currentSyncBatchIndex = 0;
+      renderCurrentSyncBatch();
+      document.getElementById('syncQRModal').classList.remove('hidden');
+      lucide.createIcons();
+    }
+
+    function renderCurrentSyncBatch() {
+      const batch = syncBatches[currentSyncBatchIndex];
+      if (!batch) return;
+      currentSyncRawString = batch.payload;
+
+      const titleEl = document.getElementById('syncModalTitle');
+      titleEl.innerHTML = syncMode === 'REDEEMED'
+        ? '<i data-lucide="history" class="w-4 h-4 text-emerald-600"></i><span>QR Sync Riwayat Penukaran</span>'
+        : '<i data-lucide="qr-code" class="w-4 h-4 text-champagne-600"></i><span>QR Sync Master Kupon</span>';
+
       const container = document.getElementById('syncQRContainer');
       container.innerHTML = '';
 
       new QRCode(container, {
         text: currentSyncRawString,
-        width: 230,
-        height: 230,
+        width: 236,
+        height: 236,
         colorDark: '#000000',
         colorLight: '#FFFFFF',
         correctLevel: QRCode.CorrectLevel.L
       });
 
-      document.getElementById('syncQRCountLabel').textContent = `Total ${masterList.length} Kupon Siap Disinkronkan`;
-      document.getElementById('syncQRModal').classList.remove('hidden');
+      const totalBatches = syncBatches.length;
+      document.getElementById('syncBatchIndicator').textContent = `Batch ${currentSyncBatchIndex + 1} / ${totalBatches}`;
+      document.getElementById('btnPrevSyncBatch').disabled = currentSyncBatchIndex === 0;
+      document.getElementById('btnNextSyncBatch').disabled = currentSyncBatchIndex >= totalBatches - 1;
+
+      const totalItems = syncBatches.reduce((sum, b) => sum + b.count, 0);
+      document.getElementById('syncQRCountLabel').textContent =
+        `Batch ini: ${batch.count} data (Total: ${totalItems} data dalam ${totalBatches} QR)`;
+      document.getElementById('syncQRSubHint').textContent =
+        syncMode === 'REDEEMED'
+          ? 'Scan di laptop/HP lain untuk menggabungkan riwayat penukaran secara otomatis.'
+          : 'Scan di HP panitia untuk memuat daftar kupon tanpa mengubah riwayat yang sudah ada.';
+
+      lucide.createIcons();
+    }
+
+    function stepSyncBatch(delta) {
+      const nextIdx = currentSyncBatchIndex + delta;
+      if (nextIdx >= 0 && nextIdx < syncBatches.length) {
+        currentSyncBatchIndex = nextIdx;
+        renderCurrentSyncBatch();
+      }
     }
 
     function closeSyncQRModal() {
@@ -1150,7 +1251,7 @@
       if (!currentSyncRawString) return;
       if (navigator.clipboard && navigator.clipboard.writeText) {
         navigator.clipboard.writeText(currentSyncRawString)
-          .then(() => showToast('Teks kode sync disalin ke clipboard.', 'success'))
+          .then(() => showToast('Teks batch sync disalin ke clipboard.', 'success'))
           .catch(() => prompt('Salin teks sinkronisasi berikut:', currentSyncRawString));
       } else {
         prompt('Salin teks sinkronisasi berikut:', currentSyncRawString);
@@ -1158,7 +1259,7 @@
     }
 
     function promptManualSyncText() {
-      const pasted = prompt('Tempelkan kode sinkronisasi (diawali WDD_SYNC|):');
+      const pasted = prompt('Tempelkan kode sinkronisasi (WDD_SYNC|... atau WDD_REDEEM_SYNC|...):');
       if (pasted && pasted.trim()) {
         const res = parseVoucherPayload(pasted.trim());
         if (!res || !res.isSyncPacket) {
@@ -1167,9 +1268,78 @@
       }
     }
 
+    function mergeMasterCoupons(incomingList) {
+      const current = getRegisteredCoupons();
+      const map = new Map(current.map((c) => [c.code.toUpperCase(), c]));
+      let addedOrUpdated = 0;
+
+      incomingList.forEach((item) => {
+        const code = String(item.code || '').trim().toUpperCase();
+        if (!code) return;
+        const cat = normalizeCategory(item.category, code);
+        if (!map.has(code)) {
+          map.set(code, { code, category: cat });
+          addedOrUpdated++;
+        }
+      });
+
+      const merged = Array.from(map.values());
+      saveRegisteredCoupons(merged);
+      return addedOrUpdated;
+    }
+
+    function mergeRedeemedHistory(incomingRedeemed) {
+      const current = getRedeemedList();
+      const seenCodes = new Set(current.map((r) => String(r.code || '').trim().toUpperCase()));
+      let mergedCount = 0;
+
+      incomingRedeemed.forEach((item) => {
+        const code = String(item.code || '').trim().toUpperCase();
+        if (!code || seenCodes.has(code)) return;
+        seenCodes.add(code);
+        current.unshift({
+          code,
+          category: normalizeCategory(item.category, code),
+          date: item.date || new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }),
+          time: item.time || new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' })
+        });
+        mergedCount++;
+      });
+
+      saveRedeemedList(current);
+      return mergedCount;
+    }
+
     function parseVoucherPayload(rawText) {
       if (!rawText || typeof rawText !== 'string') return null;
       const trimmed = rawText.trim();
+
+      if (trimmed.startsWith('WDD_REDEEM_SYNC|')) {
+        try {
+          const items = trimmed.slice('WDD_REDEEM_SYNC|'.length).split('|').filter(Boolean);
+          const parsedRedeemed = items.map((row) => {
+            const parts = row.split('~');
+            const code = (parts[0] || '').trim().toUpperCase();
+            const cat = parts[1] === 'KK' ? 'KELUARGA_KERABAT' : normalizeCategory('', code);
+            return {
+              code,
+              category: cat,
+              date: (parts[2] || '').trim(),
+              time: (parts[3] || '').trim()
+            };
+          }).filter((x) => x.code.length > 0);
+
+          const added = mergeRedeemedHistory(parsedRedeemed);
+          updateDashboardMetrics();
+          renderHistoryTable();
+          playSoundSuccess();
+          showToast(`Sync riwayat selesai: +${added} penukaran baru digabung.`, 'success');
+          return { isSyncPacket: true };
+        } catch (err) {
+          showToast('Gagal memproses QR Sync riwayat.', 'error');
+          return null;
+        }
+      }
 
       if (trimmed.startsWith('WDD_SYNC|') || trimmed.startsWith('SYNC_DB:')) {
         try {
@@ -1191,14 +1361,14 @@
           }
 
           if (imported.length > 0) {
-            saveRegisteredCoupons(imported);
+            const added = mergeMasterCoupons(imported);
             updateDashboardMetrics();
             renderAllCardsForPrint();
             playSoundSuccess();
             if (!isLowPowerDevice && typeof confetti === 'function') {
-              try { confetti({ particleCount: 55, spread: 55, origin: { y: 0.6 } }); } catch (e) {}
+              try { confetti({ particleCount: 45, spread: 50, origin: { y: 0.6 } }); } catch (e) {}
             }
-            showToast(`Sinkronisasi sukses: ${imported.length} kupon dimuat.`, 'success');
+            showToast(`Sync kupon batch selesai: +${added} kupon baru masuk.`, 'success');
             return { isSyncPacket: true };
           }
         } catch (err) {
@@ -1240,7 +1410,7 @@
     function processScannedVoucher(rawText) {
       if (scanCooldown) return;
       scanCooldown = true;
-      setTimeout(() => { scanCooldown = false; }, 1500);
+      setTimeout(() => { scanCooldown = false; }, 1200);
 
       const parsed = parseVoucherPayload(rawText);
       if (parsed && parsed.isSyncPacket) return;
@@ -1275,7 +1445,7 @@
 
       playSoundSuccess();
       if (!isLowPowerDevice && typeof confetti === 'function') {
-        try { confetti({ particleCount: 45, spread: 50, origin: { y: 0.65 } }); } catch (e) {}
+        try { confetti({ particleCount: 40, spread: 48, origin: { y: 0.65 } }); } catch (e) {}
       }
 
       showValidationResult('success', entry);
@@ -1692,8 +1862,8 @@
           <div class="voucher-inner-frame">
             <div class="w-full">
               <div class="flex items-center justify-between text-[7px] uppercase tracking-[0.16em] text-champagne-600 font-bold">
-               
-                <span>KUPON PENUKARAN SOUVENIR</span>
+                <span>${escapeHtml(catTag)}</span>
+                <span>KUPON ACARA</span>
               </div>
               <div class="h-[1px] w-full bg-gradient-to-r from-transparent via-champagne-500/65 to-transparent my-0.5"></div>
             </div>
@@ -1745,11 +1915,17 @@
     // ============================================================
     function exportMasterJSON() {
       const master = getRegisteredCoupons();
-      if (master.length === 0) {
-        showToast('Database kupon kosong.', 'warning');
+      const redeemed = getRedeemedList();
+      if (master.length === 0 && redeemed.length === 0) {
+        showToast('Database kupon dan riwayat kosong.', 'warning');
         return;
       }
-      const blob = new Blob([JSON.stringify(master, null, 2)], { type: 'application/json' });
+      const payload = {
+        coupons: master,
+        redeemed: redeemed,
+        exportedAt: new Date().toISOString()
+      };
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
@@ -1766,8 +1942,10 @@
       reader.onload = (e) => {
         try {
           const parsed = JSON.parse(e.target.result);
-          if (!Array.isArray(parsed)) throw new Error('Invalid format');
-          const cleaned = parsed.map((item) => {
+          const rawCoupons = Array.isArray(parsed) ? parsed : (Array.isArray(parsed.coupons) ? parsed.coupons : null);
+          if (!rawCoupons) throw new Error('Invalid format');
+
+          const cleaned = rawCoupons.map((item) => {
             const code = String(item.code || '').trim().toUpperCase();
             return {
               code,
@@ -1775,10 +1953,16 @@
             };
           }).filter((x) => x.code.length > 0);
 
-          saveRegisteredCoupons(cleaned);
+          const addedCoupons = mergeMasterCoupons(cleaned);
+          let addedRedeemed = 0;
+          if (Array.isArray(parsed.redeemed)) {
+            addedRedeemed = mergeRedeemedHistory(parsed.redeemed);
+          }
+
           updateDashboardMetrics();
           renderAllCardsForPrint();
-          showToast(`Berhasil mengimpor ${cleaned.length} kupon.`, 'success');
+          renderHistoryTable();
+          showToast(`Import selesai: +${addedCoupons} kupon, +${addedRedeemed} riwayat.`, 'success');
         } catch (err) {
           showToast('Format file JSON tidak valid.', 'error');
         }
