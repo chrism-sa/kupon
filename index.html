@@ -37,8 +37,8 @@
             script: ['Great Vibes', 'cursive']
           },
           boxShadow: {
-            luxury: '0 14px 36px -12px rgba(120, 92, 42, 0.14), 0 4px 12px -4px rgba(36, 31, 27, 0.06)',
-            card: '0 8px 24px -8px rgba(120, 92, 42, 0.12)'
+            luxury: '0 10px 24px -10px rgba(120, 92, 42, 0.14)',
+            card: '0 6px 18px -6px rgba(120, 92, 42, 0.12)'
           }
         }
       }
@@ -54,7 +54,6 @@
   <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
 
   <style>
@@ -76,41 +75,27 @@
       print-color-adjust: exact !important;
     }
 
-    /* Ambient Warm Cream & Floral Glow */
     .ambient-bg {
       background-image:
-        radial-gradient(circle at 12% 8%, rgba(212, 178, 106, 0.16) 0%, transparent 42%),
-        radial-gradient(circle at 88% 18%, rgba(242, 228, 198, 0.55) 0%, transparent 45%),
-        linear-gradient(180deg, #FFFDF9 0%, #FAF7F2 55%, #F4EDE0 100%);
+        radial-gradient(circle at 12% 8%, rgba(212, 178, 106, 0.14) 0%, transparent 42%),
+        linear-gradient(180deg, #FFFDF9 0%, #FAF7F2 60%, #F4EDE0 100%);
     }
 
+    /* Ringan di GPU: tanpa backdrop-filter berlapis */
     .glass-panel {
-      background: rgba(255, 253, 249, 0.88);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border: 1px solid rgba(197, 155, 72, 0.25);
+      background: #FFFDF9;
+      border: 1px solid rgba(197, 155, 72, 0.28);
     }
 
     /* Onboarding Loading Screen */
     .onboarding-screen {
-      background-image:
-        radial-gradient(circle at 20% 18%, rgba(212, 178, 106, 0.24) 0%, transparent 48%),
-        radial-gradient(circle at 80% 82%, rgba(242, 228, 198, 0.7) 0%, transparent 50%),
-        linear-gradient(160deg, #FFFDF9 0%, #FAF7F2 55%, #F2E7D3 100%);
-      transition: opacity 0.45s ease, visibility 0.45s ease;
+      background: linear-gradient(160deg, #FFFDF9 0%, #FAF7F2 55%, #F2E7D3 100%);
+      transition: opacity 0.25s ease, visibility 0.25s ease;
     }
     .onboarding-screen.is-hidden {
       opacity: 0;
       visibility: hidden;
       pointer-events: none;
-    }
-
-    @keyframes crestPulse {
-      0%, 100% { transform: scale(1); box-shadow: 0 12px 32px -8px rgba(197, 155, 72, 0.28); }
-      50% { transform: scale(1.03); box-shadow: 0 18px 40px -8px rgba(197, 155, 72, 0.42); }
-    }
-    .crest-emblem {
-      animation: crestPulse 2.8s ease-in-out infinite;
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -153,8 +138,17 @@
       right: 8%;
       height: 2.5px;
       background: linear-gradient(90deg, transparent, #C59B48, #10B981, #C59B48, transparent);
-      box-shadow: 0 0 10px rgba(16, 185, 129, 0.7);
-      animation: laserSweep 2.4s ease-in-out infinite;
+      animation: laserSweep 2.4s linear infinite;
+      will-change: top;
+    }
+
+    /* Pop-up Konfirmasi Kategori */
+    @keyframes popInScale {
+      0% { transform: scale(0.92); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    .popup-animate {
+      animation: popInScale 0.18s ease-out forwards;
     }
 
     /* ============================================================ */
@@ -202,15 +196,7 @@
 
     .voucher-card.bg-preset-silk {
       background-color: #F6EFE3;
-      background-image:
-        repeating-linear-gradient(
-          45deg,
-          rgba(197, 155, 72, 0.04) 0px,
-          rgba(197, 155, 72, 0.04) 4px,
-          transparent 4px,
-          transparent 10px
-        ),
-        linear-gradient(180deg, #FFFDF9 0%, #F3E9D7 100%);
+      background-image: linear-gradient(180deg, #FFFDF9 0%, #F3E9D7 100%);
     }
 
     .voucher-card.bg-preset-custom {
@@ -247,7 +233,6 @@
       padding: 4px !important;
       border-radius: 8px;
       border: 1.5px solid #C59B48;
-      box-shadow: 0 2px 6px rgba(36, 31, 27, 0.08);
       display: inline-flex;
       align-items: center;
       justify-content: center;
@@ -279,13 +264,11 @@
       image-rendering: crisp-edges !important;
     }
 
-    /* Cutting Guides Tipis & Presisi */
     .cut-guide-enabled .voucher-card {
       outline: 0.35mm dashed rgba(120, 108, 96, 0.58);
       outline-offset: 1mm;
     }
 
-    /* Preview Grid di Layar */
     .print-sheet-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(245px, 1fr));
@@ -302,9 +285,6 @@
       height: var(--card-h, 72mm);
     }
 
-    /* ============================================================ */
-    /* PRINT MEDIA QUERY — KERTAS A3+ (31x47 cm / 30x47 cm)        */
-    /* ============================================================ */
     @page {
       size: 470mm 310mm;
       margin: 10mm;
@@ -322,6 +302,7 @@
 
       .no-print,
       #onboardingSplash,
+      #scanConfirmPopup,
       header,
       #toastContainer,
       #syncQRModal,
@@ -374,17 +355,17 @@
 <body class="min-h-screen ambient-bg text-ink-900 font-sans antialiased selection:bg-champagne-500 selection:text-white">
 
   <!-- ============================================================ -->
-  <!-- ONBOARDING LOADING SCREEN                                    -->
+  <!-- ONBOARDING LOADING SCREEN (CEPAT & RINGAN)                   -->
   <!-- ============================================================ -->
   <div id="onboardingSplash" class="onboarding-screen fixed inset-0 z-50 flex flex-col items-center justify-center p-6 text-center no-print">
     <div class="max-w-sm w-full glass-panel rounded-[2rem] p-8 shadow-luxury border border-champagne-400/50 space-y-6">
-      <div class="mx-auto w-20 h-20 rounded-full bg-gradient-to-br from-champagne-400 via-champagne-500 to-champagne-600 p-[2px] crest-emblem">
+      <div class="mx-auto w-20 h-20 rounded-full bg-gradient-to-br from-champagne-400 via-champagne-500 to-champagne-600 p-[2px] shadow-card">
         <div class="w-full h-full rounded-full bg-cream-50 flex flex-col items-center justify-center border border-champagne-200">
           <span class="font-serif text-2xl font-bold tracking-wider text-ink-900">C<span class="text-champagne-600 italic">&amp;</span>S</span>
         </div>
       </div>
 
-      <div class="space-y-1.5">
+      <div class="space-y-1">
         <p class="text-[10px] font-bold uppercase tracking-[0.26em] text-champagne-600">
           Wedding Souvenir System
         </p>
@@ -396,22 +377,57 @@
         </p>
       </div>
 
-      <div class="space-y-2">
-        <div class="w-full h-2 rounded-full bg-cream-200 overflow-hidden border border-champagne-400/30">
-          <div id="onboardingProgressBar" class="h-full bg-gradient-to-r from-champagne-400 to-champagne-600 rounded-full transition-all duration-300" style="width: 18%;"></div>
+      <div class="space-y-1.5">
+        <div class="w-full h-2 rounded-full bg-cream-200 overflow-hidden">
+          <div id="onboardingProgressBar" class="h-full bg-gradient-to-r from-champagne-400 to-champagne-600 rounded-full transition-all duration-200" style="width: 35%;"></div>
         </div>
         <div class="flex items-center justify-between text-[11px] text-ink-500">
-          <span id="onboardingStatusText">Menyiapkan pemindai &amp; database kupon...</span>
-          <span id="onboardingPercentText" class="font-mono font-bold text-champagne-600">18%</span>
+          <span id="onboardingStatusText">Membuka pemindai kupon...</span>
+          <span id="onboardingPercentText" class="font-mono font-bold text-champagne-600">35%</span>
         </div>
       </div>
 
-      <div class="pt-1">
-        <button type="button" onclick="dismissOnboarding()" class="w-full py-2.5 px-4 rounded-xl bg-ink-900 hover:bg-ink-700 text-cream-50 text-xs font-semibold flex items-center justify-center gap-2 shadow-sm transition active:scale-95">
-          <i data-lucide="scan-qr-code" class="w-4 h-4 text-champagne-400"></i>
-          <span>Masuk ke Pemindai Kupon</span>
-        </button>
+      <button type="button" onclick="dismissOnboarding()" class="w-full py-2.5 px-4 rounded-xl bg-ink-900 hover:bg-ink-700 text-cream-50 text-xs font-semibold flex items-center justify-center gap-2 transition active:scale-95">
+        <i data-lucide="scan-qr-code" class="w-4 h-4 text-champagne-400"></i>
+        <span>Masuk Sekarang</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- POP-UP KONFIRMASI KATEGORI SAAT SCAN BERHASIL               -->
+  <!-- ============================================================ -->
+  <div id="scanConfirmPopup" class="hidden fixed inset-0 z-50 bg-ink-900/60 flex items-center justify-center p-4 no-print" onclick="if(event.target === this) closeScanConfirmPopup()">
+    <div id="scanConfirmCard" class="popup-animate max-w-sm w-full bg-cream-50 rounded-[1.75rem] p-6 shadow-luxury border-2 border-emerald-500 text-center space-y-4">
+      <div class="mx-auto w-14 h-14 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center border border-emerald-300">
+        <i data-lucide="check-circle-2" class="w-8 h-8"></i>
       </div>
+
+      <div class="space-y-1">
+        <p class="text-[11px] font-bold uppercase tracking-widest text-emerald-700">
+          Kupon Berhasil Diverifikasi
+        </p>
+        <p class="text-xs text-ink-500">Ini milik kategori:</p>
+        <div id="popupCategoryBanner" class="mt-1.5 py-2.5 px-4 rounded-2xl font-serif text-2xl font-bold tracking-wide bg-champagne-100 text-ink-900 border border-champagne-500">
+          KELUARGA KERABAT
+        </div>
+      </div>
+
+      <div class="rounded-2xl bg-cream-100 border border-champagne-400/35 p-3 text-xs space-y-1">
+        <div class="flex justify-between">
+          <span class="text-ink-500">Kode Seri:</span>
+          <span id="popupSerialCode" class="font-mono font-bold text-ink-900">KK-SC-0001</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-ink-500">Waktu Scan:</span>
+          <span id="popupTimeText" class="font-semibold text-ink-900">-</span>
+        </div>
+      </div>
+
+      <button type="button" onclick="closeScanConfirmPopup()" class="w-full py-2.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold flex items-center justify-center gap-2 transition active:scale-95">
+        <i data-lucide="scan-line" class="w-4 h-4"></i>
+        <span>OK, Lanjut Scan</span>
+      </button>
     </div>
   </div>
 
@@ -518,7 +534,7 @@
           <div class="relative w-full aspect-square max-w-[340px] mx-auto rounded-2xl overflow-hidden border border-champagne-400/40 bg-ink-900 flex items-center justify-center">
             <div id="qr-reader" class="w-full h-full"></div>
 
-            <div id="scannerPlaceholder" class="absolute inset-0 z-10 flex flex-col items-center justify-center p-6 text-center bg-cream-50/95">
+            <div id="scannerPlaceholder" class="absolute inset-0 z-10 flex flex-col items-center justify-center p-6 text-center bg-cream-50">
               <div class="w-16 h-16 rounded-2xl bg-champagne-100 border border-champagne-400/50 flex items-center justify-center text-champagne-600 mb-3">
                 <i data-lucide="qr-code" class="w-8 h-8"></i>
               </div>
@@ -539,7 +555,7 @@
                 <span class="absolute -bottom-1 -left-1 w-6 h-6 border-b-4 border-l-4 border-emerald-400 rounded-bl-lg"></span>
                 <span class="absolute -bottom-1 -right-1 w-6 h-6 border-b-4 border-r-4 border-emerald-400 rounded-br-lg"></span>
                 <div class="scanner-laser"></div>
-                <span class="absolute -bottom-7 left-1/2 -translate-x-1/2 whitespace-nowrap px-3 py-0.5 rounded-full bg-ink-900/90 text-cream-50 text-[10px] font-medium">
+                <span class="absolute -bottom-7 left-1/2 -translate-x-1/2 whitespace-nowrap px-3 py-0.5 rounded-full bg-ink-900 text-cream-50 text-[10px] font-medium">
                   Arahkan QR ke dalam bingkai
                 </span>
               </div>
@@ -569,7 +585,7 @@
 
         <!-- Panel Hasil Verifikasi -->
         <div class="lg:col-span-5 flex flex-col gap-4">
-          <div id="validationResultCard" class="flex-1 glass-panel rounded-3xl p-6 shadow-luxury flex flex-col items-center justify-center text-center transition-all">
+          <div id="validationResultCard" class="flex-1 glass-panel rounded-3xl p-6 shadow-luxury flex flex-col items-center justify-center text-center">
 
             <div id="statusStateIdle" class="flex flex-col items-center">
               <div class="w-14 h-14 rounded-2xl bg-champagne-100 border border-champagne-400/40 flex items-center justify-center text-champagne-600 mb-3">
@@ -577,7 +593,7 @@
               </div>
               <h3 class="font-serif text-xl font-bold text-ink-900">Menunggu Validasi</h3>
               <p class="text-xs text-ink-500 mt-1 max-w-xs">
-                Hasil verifikasi kupon akan tampil di sini secara otomatis setelah pemindaian.
+                Saat kupon berhasil di-scan, pop-up kategori (Keluarga Kerabat / Tamu Undangan) akan langsung muncul.
               </p>
             </div>
 
@@ -589,11 +605,11 @@
                 Kupon Sah • Berhasil Ditukar
               </span>
               <h3 id="resVoucherCode" class="font-mono text-2xl font-bold text-ink-900 mt-2">TM-SC-0001</h3>
-              <span id="resCategoryBadge" class="text-[10px] font-bold px-2.5 py-0.5 rounded bg-ink-900 text-cream-50 mt-1">TAMU UNDANGAN</span>
-              <div class="w-full mt-4 rounded-2xl bg-cream-100/90 border border-champagne-400/30 p-3.5 text-left text-xs space-y-1.5">
+              <span id="resCategoryBadge" class="text-xs font-bold px-3 py-1 rounded-full bg-champagne-100 text-ink-900 border border-champagne-500 mt-1.5">TAMU UNDANGAN</span>
+              <div class="w-full mt-4 rounded-2xl bg-cream-100 border border-champagne-400/30 p-3.5 text-left text-xs space-y-1.5">
                 <div class="flex justify-between">
                   <span class="text-ink-500">Kategori:</span>
-                  <span id="resCategoryDesc" class="font-semibold text-ink-900">-</span>
+                  <span id="resCategoryDesc" class="font-bold text-ink-900">-</span>
                 </div>
                 <div class="flex justify-between">
                   <span class="text-ink-500">Waktu Tukar:</span>
@@ -614,7 +630,7 @@
                 Peringatan • Sudah Pernah Ditukar
               </span>
               <h3 id="dupVoucherCode" class="font-mono text-2xl font-bold text-ink-900 mt-2">TM-SC-0001</h3>
-              <div class="w-full mt-3 rounded-2xl bg-amber-50/90 border border-amber-300 p-3.5 text-left text-xs space-y-1">
+              <div class="w-full mt-3 rounded-2xl bg-amber-50 border border-amber-300 p-3.5 text-left text-xs space-y-1">
                 <p class="font-semibold text-amber-900">Kupon ini sudah tercatat diambil sebelumnya.</p>
                 <div class="flex justify-between pt-1.5 border-t border-amber-200 text-ink-700">
                   <span>Waktu Pertama:</span>
@@ -676,9 +692,9 @@
           </div>
         </div>
 
-        <div class="overflow-x-auto rounded-2xl border border-champagne-400/30 bg-cream-50/70">
+        <div class="overflow-x-auto rounded-2xl border border-champagne-400/30 bg-cream-50">
           <table class="w-full text-left text-xs">
-            <thead class="bg-champagne-100/80 text-[11px] uppercase tracking-wider text-ink-700 border-b border-champagne-400/30">
+            <thead class="bg-champagne-100 text-[11px] uppercase tracking-wider text-ink-700 border-b border-champagne-400/30">
               <tr>
                 <th class="px-4 py-3">No</th>
                 <th class="px-4 py-3">Kode Kupon</th>
@@ -706,7 +722,7 @@
         <div>
           <h2 class="font-serif text-xl font-bold text-ink-900 flex items-center gap-2">
             <i data-lucide="refresh-cw" class="w-5 h-5 text-champagne-600"></i>
-            <span>Sinkronisasi Cepat HP ↔amp; Laptop (Batch QR &amp; Teks)</span>
+            <span>Sinkronisasi Cepat HP ↔ Laptop (Batch QR &amp; Teks)</span>
           </h2>
           <p class="text-xs text-ink-500 mt-0.5">
             Otomatis terbagi per 75 data agar QR tidak padat &amp; cepat di-scan, plus sinkronisasi riwayat penukaran dua arah.
@@ -831,7 +847,7 @@
           </div>
         </div>
 
-        <div id="customBgControlBar" class="hidden rounded-2xl bg-cream-100/90 border border-champagne-400/40 p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div id="customBgControlBar" class="hidden rounded-2xl bg-cream-100 border border-champagne-400/40 p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div class="flex flex-wrap items-center gap-2 flex-1">
             <label class="px-3 py-1.5 rounded-xl bg-champagne-500 hover:bg-champagne-600 text-white text-xs font-semibold flex items-center gap-1.5 cursor-pointer transition">
               <i data-lucide="image-plus" class="w-4 h-4"></i>
@@ -917,7 +933,7 @@
           </div>
         </div>
 
-        <div id="customCardDimBar" class="hidden rounded-2xl bg-cream-100/90 border border-champagne-400/40 p-3 flex flex-wrap items-center gap-4 text-xs">
+        <div id="customCardDimBar" class="hidden rounded-2xl bg-cream-100 border border-champagne-400/40 p-3 flex flex-wrap items-center gap-4 text-xs">
           <span class="font-semibold text-ink-900">Dimensi Kupon Kustom:</span>
           <label class="flex items-center gap-1.5">
             <span class="text-ink-500">Lebar (mm):</span>
@@ -929,7 +945,7 @@
           </label>
         </div>
 
-        <div id="printSummaryBanner" class="rounded-2xl bg-champagne-100/80 border border-champagne-400/40 px-4 py-3 text-xs text-ink-900 flex flex-wrap items-center justify-between gap-2">
+        <div id="printSummaryBanner" class="rounded-2xl bg-champagne-100 border border-champagne-400/40 px-4 py-3 text-xs text-ink-900 flex flex-wrap items-center justify-between gap-2">
           <div id="printGridMetrics" class="font-medium">A3+ (31 × 47 cm) • Grid 5 × 4 (20 kupon/lembar) • Kartu 90mm × 72mm</div>
           <div id="printSheetsEstimate" class="font-bold text-champagne-600">Dicetak: 0 Kupon • Estimasi: 0 Lembar</div>
         </div>
@@ -940,7 +956,7 @@
         <div class="flex flex-wrap items-center justify-between gap-2 no-print">
           <div>
             <h3 class="font-serif text-lg font-bold text-ink-900">Pratinjau Kartu Kupon (QR Persegi 1:1)</h3>
-            <p class="text-[11px] text-ink-500">Pastikan opsi <em>Background graphics</em> aktif di dialog cetak browser.</p>
+            <p id="previewLimitNote" class="text-[11px] text-ink-500">Pastikan opsi <em>Background graphics</em> aktif di dialog cetak browser.</p>
           </div>
           <label class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-cream-100 border border-champagne-400/40 text-xs font-medium text-ink-700 cursor-pointer">
             <input id="previewTrueScaleToggle" type="checkbox" onchange="togglePreviewScale(this.checked)" class="rounded text-champagne-600" />
@@ -958,7 +974,7 @@
   <!-- ============================================================ -->
   <!-- MODAL: BATCH QR SYNC CEPAT (MASTER & RIWAYAT)                -->
   <!-- ============================================================ -->
-  <div id="syncQRModal" class="hidden fixed inset-0 z-50 bg-ink-900/70 backdrop-blur-sm flex items-center justify-center p-4 no-print">
+  <div id="syncQRModal" class="hidden fixed inset-0 z-50 bg-ink-900/70 flex items-center justify-center p-4 no-print">
     <div class="bg-cream-50 border border-champagne-400/50 rounded-3xl max-w-sm w-full p-6 shadow-luxury text-center space-y-4">
       <div class="flex items-center justify-between">
         <h3 id="syncModalTitle" class="font-serif text-lg font-bold text-ink-900 flex items-center gap-2">
@@ -999,7 +1015,7 @@
   <!-- ============================================================ -->
   <!-- MODAL: KONFIRMASI RESET RIWAYAT                              -->
   <!-- ============================================================ -->
-  <div id="resetModal" class="hidden fixed inset-0 z-50 bg-ink-900/70 backdrop-blur-sm flex items-center justify-center p-4 no-print">
+  <div id="resetModal" class="hidden fixed inset-0 z-50 bg-ink-900/70 flex items-center justify-center p-4 no-print">
     <div class="bg-cream-50 border border-champagne-400/50 rounded-3xl max-w-sm w-full p-6 shadow-luxury space-y-4">
       <div class="flex items-center gap-3">
         <div class="w-10 h-10 rounded-xl bg-rose-100 text-rose-700 flex items-center justify-center">
@@ -1033,6 +1049,7 @@
     const STORAGE_KEY_DATE = 'wedding_event_date_v1';
 
     const SYNC_BATCH_SIZE = 75;
+    const MAX_PREVIEW_CARDS = 60;
 
     let html5QrCode = null;
     let isScannerRunning = false;
@@ -1045,6 +1062,7 @@
     let customBackgroundDataUrl = '';
     let dynamicPrintStyleEl = null;
     let onboardingTimer = null;
+    let isPrintPreviewDirty = true;
 
     const isLowPowerDevice = (() => {
       const reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -1075,14 +1093,11 @@
       if (!splash) return;
 
       const steps = [
-        { pct: 45, text: 'Memuat database kupon & riwayat...' },
-        { pct: 82, text: 'Menyiapkan pemindai QR & validasi...' },
+        { pct: 72, text: 'Memuat data kupon & riwayat...' },
         { pct: 100, text: 'Siap digunakan!' }
       ];
 
       let stepIdx = 0;
-      const intervalMs = isLowPowerDevice ? 220 : 340;
-
       onboardingTimer = setInterval(() => {
         if (stepIdx < steps.length) {
           const current = steps[stepIdx];
@@ -1093,9 +1108,9 @@
         } else {
           clearInterval(onboardingTimer);
           onboardingTimer = null;
-          setTimeout(dismissOnboarding, 260);
+          dismissOnboarding();
         }
-      }, intervalMs);
+      }, 180);
     }
 
     function dismissOnboarding() {
@@ -1105,22 +1120,45 @@
       }
       const splash = document.getElementById('onboardingSplash');
       if (!splash || splash.classList.contains('is-hidden')) return;
-
       splash.classList.add('is-hidden');
       setTimeout(() => {
         splash.style.display = 'none';
-      }, 480);
+      }, 260);
+    }
 
-      if (!isLowPowerDevice && window.gsap) {
-        gsap.from('header, main > section:not(.hidden) .glass-panel', {
-          y: 12,
-          opacity: 0,
-          duration: 0.42,
-          stagger: 0.05,
-          ease: 'power2.out',
-          clearProps: 'transform'
-        });
-      }
+    // ============================================================
+    // POP-UP KONFIRMASI KATEGORI
+    // ============================================================
+    function openScanConfirmPopup(entry) {
+      const popup = document.getElementById('scanConfirmPopup');
+      const card = document.getElementById('scanConfirmCard');
+      const banner = document.getElementById('popupCategoryBanner');
+      const codeEl = document.getElementById('popupSerialCode');
+      const timeEl = document.getElementById('popupTimeText');
+
+      const catNorm = normalizeCategory(entry.category, entry.code);
+      const label = getCategoryLabel(catNorm);
+      const isFamily = catNorm === 'KELUARGA_KERABAT';
+
+      banner.textContent = label;
+      banner.className = isFamily
+        ? 'mt-1.5 py-2.5 px-4 rounded-2xl font-serif text-2xl font-bold tracking-wide bg-champagne-100 text-ink-900 border-2 border-champagne-500'
+        : 'mt-1.5 py-2.5 px-4 rounded-2xl font-serif text-2xl font-bold tracking-wide bg-cream-200 text-ink-900 border-2 border-ink-700/40';
+
+      card.className = isFamily
+        ? 'popup-animate max-w-sm w-full bg-cream-50 rounded-[1.75rem] p-6 shadow-luxury border-2 border-champagne-500 text-center space-y-4'
+        : 'popup-animate max-w-sm w-full bg-cream-50 rounded-[1.75rem] p-6 shadow-luxury border-2 border-emerald-600 text-center space-y-4';
+
+      codeEl.textContent = entry.code;
+      timeEl.textContent = `${entry.date} • ${entry.time}`;
+
+      popup.classList.remove('hidden');
+      lucide.createIcons();
+    }
+
+    function closeScanConfirmPopup() {
+      const popup = document.getElementById('scanConfirmPopup');
+      if (popup) popup.classList.add('hidden');
     }
 
     // ============================================================
@@ -1205,13 +1243,13 @@
         const gain = ctx.createGain();
         osc.type = 'triangle';
         osc.frequency.setValueAtTime(587.33, now);
-        osc.frequency.exponentialRampToValueAtTime(1046.5, now + 0.16);
-        gain.gain.setValueAtTime(0.22, now);
-        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+        osc.frequency.exponentialRampToValueAtTime(1046.5, now + 0.14);
+        gain.gain.setValueAtTime(0.2, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.28);
         osc.connect(gain);
         gain.connect(ctx.destination);
         osc.start(now);
-        osc.stop(now + 0.35);
+        osc.stop(now + 0.28);
       } catch (e) {}
     }
 
@@ -1225,13 +1263,13 @@
         const gain = ctx.createGain();
         osc.type = 'sawtooth';
         osc.frequency.setValueAtTime(180, now);
-        osc.frequency.setValueAtTime(125, now + 0.14);
-        gain.gain.setValueAtTime(0.22, now);
-        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.32);
+        osc.frequency.setValueAtTime(125, now + 0.12);
+        gain.gain.setValueAtTime(0.2, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.26);
         osc.connect(gain);
         gain.connect(ctx.destination);
         osc.start(now);
-        osc.stop(now + 0.32);
+        osc.stop(now + 0.26);
       } catch (e) {}
     }
 
@@ -1254,15 +1292,11 @@
       container.appendChild(el);
       lucide.createIcons();
 
-      if (!isLowPowerDevice && window.gsap) {
-        gsap.fromTo(el, { y: -12, opacity: 0 }, { y: 0, opacity: 1, duration: 0.28, ease: 'power2.out' });
-      }
-
       setTimeout(() => {
         el.style.opacity = '0';
-        el.style.transition = 'opacity 0.25s ease';
-        setTimeout(() => el.remove(), 260);
-      }, 3200);
+        el.style.transition = 'opacity 0.2s ease';
+        setTimeout(() => el.remove(), 210);
+      }, 2600);
     }
 
     // ============================================================
@@ -1491,12 +1525,9 @@
 
           if (imported.length > 0) {
             const added = mergeMasterCoupons(imported);
+            isPrintPreviewDirty = true;
             updateDashboardMetrics();
-            renderAllCardsForPrint();
             playSoundSuccess();
-            if (!isLowPowerDevice && typeof confetti === 'function') {
-              try { confetti({ particleCount: 45, spread: 50, origin: { y: 0.6 } }); } catch (e) {}
-            }
             showToast(`Sync kupon batch selesai: +${added} kupon baru masuk.`, 'success');
             return { isSyncPacket: true };
           }
@@ -1539,7 +1570,7 @@
     function processScannedVoucher(rawText) {
       if (scanCooldown) return;
       scanCooldown = true;
-      setTimeout(() => { scanCooldown = false; }, 1200);
+      setTimeout(() => { scanCooldown = false; }, 900);
 
       const parsed = parseVoucherPayload(rawText);
       if (parsed && parsed.isSyncPacket) return;
@@ -1574,11 +1605,11 @@
 
       playSoundSuccess();
       if (!isLowPowerDevice && typeof confetti === 'function') {
-        try { confetti({ particleCount: 40, spread: 48, origin: { y: 0.65 } }); } catch (e) {}
+        try { confetti({ particleCount: 30, spread: 45, origin: { y: 0.65 } }); } catch (e) {}
       }
 
       showValidationResult('success', entry);
-      showToast(`Sah: ${entry.code} (${getCategoryLabel(entry.category)}) berhasil ditukar.`, 'success');
+      openScanConfirmPopup(entry);
       updateDashboardMetrics();
       renderHistoryTable();
     }
@@ -1627,7 +1658,7 @@
         await html5QrCode.start(
           { facingMode: currentFacingMode },
           {
-            fps: isLowPowerDevice ? 12 : 18,
+            fps: isLowPowerDevice ? 15 : 20,
             qrbox: (w, h) => {
               const edge = Math.max(185, Math.floor(Math.min(w, h) * 0.76));
               return { width: edge, height: edge };
@@ -1753,6 +1784,7 @@
       }
 
       saveRegisteredCoupons(master);
+      isPrintPreviewDirty = true;
       updateDashboardMetrics();
       renderAllCardsForPrint();
       showToast(`Berhasil generate ${added} kupon ${getCategoryLabel(category)} (${prefix}...).`, 'success');
@@ -1761,6 +1793,7 @@
     function handleEventMetaChange() {
       safeStorageSet(STORAGE_KEY_COUPLE, document.getElementById('genCoupleNames').value.trim());
       safeStorageSet(STORAGE_KEY_DATE, document.getElementById('genEventDate').value.trim());
+      isPrintPreviewDirty = true;
       renderAllCardsForPrint();
     }
 
@@ -1769,6 +1802,7 @@
       safeStorageSet(STORAGE_KEY_BG_THEME, theme);
       const customBar = document.getElementById('customBgControlBar');
       customBar.classList.toggle('hidden', theme !== 'custom' && !customBackgroundDataUrl);
+      isPrintPreviewDirty = true;
       renderAllCardsForPrint();
     }
 
@@ -1819,6 +1853,7 @@
         document.getElementById('bgThemeSelect').value = 'custom';
         safeStorageSet(STORAGE_KEY_BG_THEME, 'custom');
         document.getElementById('customBgControlBar').classList.remove('hidden');
+        isPrintPreviewDirty = true;
         renderAllCardsForPrint();
         showToast('Gambar background kupon berhasil diterapkan.', 'success');
       } catch (err) {
@@ -1834,6 +1869,7 @@
       document.getElementById('bgThemeSelect').value = 'ivory';
       safeStorageSet(STORAGE_KEY_BG_THEME, 'ivory');
       document.getElementById('customBgControlBar').classList.add('hidden');
+      isPrintPreviewDirty = true;
       renderAllCardsForPrint();
       showToast('Gambar background dihapus, kembali ke tema Ivory Classic.');
     }
@@ -1844,6 +1880,7 @@
     function handleCardPresetChange() {
       const preset = document.getElementById('printCardPreset').value;
       document.getElementById('customCardDimBar').classList.toggle('hidden', preset !== 'custom');
+      isPrintPreviewDirty = true;
       renderAllCardsForPrint();
     }
 
@@ -1948,14 +1985,20 @@
     }
 
     function triggerPrintA3Plus() {
-      recalculatePrintGrid();
-      window.print();
+      const totalFiltered = getFilteredCouponsForPrint().length;
+      if (totalFiltered > MAX_PREVIEW_CARDS) {
+        renderAllCardsForPrint(totalFiltered);
+      } else {
+        recalculatePrintGrid();
+      }
+      setTimeout(() => window.print(), 80);
     }
 
-    function renderAllCardsForPrint() {
+    function renderAllCardsForPrint(limitOverride = null) {
       const gridInfo = recalculatePrintGrid();
       const filteredList = getFilteredCouponsForPrint();
       const container = document.getElementById('cardsGridContainer');
+      const limitNote = document.getElementById('previewLimitNote');
       const coupleNames = document.getElementById('genCoupleNames').value.trim() || 'Charis & Sita';
       const eventDate = document.getElementById('genEventDate').value.trim() || '12 Desember 2026';
       const bgTheme = document.getElementById('bgThemeSelect').value;
@@ -1963,18 +2006,34 @@
       container.innerHTML = '';
 
       if (filteredList.length === 0) {
+        if (limitNote) {
+          limitNote.textContent = 'Pastikan opsi Background graphics aktif di dialog cetak browser.';
+        }
         container.innerHTML = `
           <div class="col-span-full py-12 text-center text-xs text-ink-500">
             Belum ada kupon yang di-generate. Tekan tombol <strong>Generate</strong> pada Tamu Undangan atau Keluarga Kerabat di atas.
           </div>
         `;
+        isPrintPreviewDirty = false;
         return;
+      }
+
+      const maxRender = typeof limitOverride === 'number' ? limitOverride : MAX_PREVIEW_CARDS;
+      const visibleList = filteredList.slice(0, maxRender);
+
+      if (limitNote) {
+        limitNote.textContent = filteredList.length > visibleList.length
+          ? `Mode cepat layar: menampilkan ${visibleList.length} dari ${filteredList.length} kupon (seluruh ${filteredList.length} kupon ikut dicetak saat klik Cetak Sekarang).`
+          : 'Pastikan opsi Background graphics aktif di dialog cetak browser.';
       }
 
       const qrSize = Math.max(84, Math.min(112, Math.floor(Math.min(gridInfo.cardW, gridInfo.cardH) * 1.25)));
       document.documentElement.style.setProperty('--qr-px', `${qrSize}px`);
 
-      filteredList.forEach((item, idx) => {
+      const frag = document.createDocumentFragment();
+      const qrQueue = [];
+
+      visibleList.forEach((item, idx) => {
         const card = document.createElement('div');
         const useCustomImg = bgTheme === 'custom' && Boolean(customBackgroundDataUrl);
         const presetClass = useCustomImg ? 'bg-preset-custom' : `bg-preset-${bgTheme === 'custom' ? 'ivory' : bgTheme}`;
@@ -1991,7 +2050,8 @@
           <div class="voucher-inner-frame">
             <div class="w-full">
               <div class="flex items-center justify-between text-[7px] uppercase tracking-[0.16em] text-champagne-600 font-bold">
-                <span>KUPON PENUKARAN SOUVENIR</span>
+                <span>${escapeHtml(catTag)}</span>
+                <span>KUPON ACARA</span>
               </div>
               <div class="h-[1px] w-full bg-gradient-to-r from-transparent via-champagne-500/65 to-transparent my-0.5"></div>
             </div>
@@ -2016,11 +2076,17 @@
           </div>
         `;
 
-        container.appendChild(card);
+        frag.appendChild(card);
+        qrQueue.push({ qrId, code: item.code });
+      });
 
+      container.appendChild(frag);
+
+      qrQueue.forEach(({ qrId, code }) => {
         const qrTarget = document.getElementById(qrId);
+        if (!qrTarget) return;
         new QRCode(qrTarget, {
-          text: item.code,
+          text: code,
           width: qrSize,
           height: qrSize,
           colorDark: '#000000',
@@ -2036,6 +2102,8 @@
           qrImg.style.height = `${qrSize}px`;
         }
       });
+
+      isPrintPreviewDirty = false;
     }
 
     // ============================================================
@@ -2087,9 +2155,12 @@
             addedRedeemed = mergeRedeemedHistory(parsed.redeemed);
           }
 
+          isPrintPreviewDirty = true;
           updateDashboardMetrics();
-          renderAllCardsForPrint();
           renderHistoryTable();
+          if (!document.getElementById('generatorSection').classList.contains('hidden')) {
+            renderAllCardsForPrint();
+          }
           showToast(`Import selesai: +${addedCoupons} kupon, +${addedRedeemed} riwayat.`, 'success');
         } catch (err) {
           showToast('Format file JSON tidak valid.', 'error');
@@ -2106,8 +2177,11 @@
       }
       if (confirm('Hapus seluruh database kupon master? Riwayat penukaran tidak ikut terhapus.')) {
         safeStorageRemove(STORAGE_KEY_REGISTERED);
+        isPrintPreviewDirty = true;
         updateDashboardMetrics();
-        renderAllCardsForPrint();
+        if (!document.getElementById('generatorSection').classList.contains('hidden')) {
+          renderAllCardsForPrint();
+        }
         showToast('Database kupon master telah dikosongkan.');
       }
     }
@@ -2141,6 +2215,7 @@
         emptyEl.classList.remove('hidden');
       } else {
         emptyEl.classList.add('hidden');
+        const frag = document.createDocumentFragment();
         filtered.forEach((item, idx) => {
           const tr = document.createElement('tr');
           tr.className = 'hover:bg-champagne-100/50 transition-colors';
@@ -2161,8 +2236,9 @@
               </button>
             </td>
           `;
-          tbody.appendChild(tr);
+          frag.appendChild(tr);
         });
+        tbody.appendChild(frag);
       }
       lucide.createIcons();
     }
@@ -2231,7 +2307,7 @@
     }
 
     // ============================================================
-    // NAVIGASI TAB & INISIALISASI
+    // NAVIGASI TAB & INISIALISASI (AWAL LANGSUNG KE SCANNER)
     // ============================================================
     function switchTab(tab) {
       const isScanner = tab === 'scanner';
@@ -2248,13 +2324,11 @@
         btnGen.className = 'flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold transition bg-ink-900 text-cream-50 shadow-sm';
         btnScan.className = 'flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold transition text-ink-700 hover:text-ink-900';
         if (isScannerRunning) stopScanner();
-        renderAllCardsForPrint();
+        if (isPrintPreviewDirty || document.getElementById('cardsGridContainer').children.length === 0) {
+          renderAllCardsForPrint();
+        }
       }
 
-      if (!isLowPowerDevice && window.gsap) {
-        const targetEl = document.getElementById(isScanner ? 'scannerSection' : 'generatorSection');
-        gsap.fromTo(targetEl, { y: 10, opacity: 0.7 }, { y: 0, opacity: 1, duration: 0.3, ease: 'power2.out' });
-      }
       lucide.createIcons();
     }
 
@@ -2282,7 +2356,7 @@
       lucide.createIcons();
       updateDashboardMetrics();
       renderHistoryTable();
-      renderAllCardsForPrint();
+      switchTab('scanner');
       startOnboardingSequence();
     });
   </script>
